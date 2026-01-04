@@ -1,0 +1,54 @@
+.roulette-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.roulette-pointer {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 30px solid #1f2937;
+  position: absolute;
+  top: 0;
+  z-index: 10;
+}
+
+.roulette-wheel {
+  width: 280px;
+  height: 280px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.spin-button {
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  font-weight: bold;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.spin-button:hover:not(:disabled) {
+  background: #4338ca;
+}
+
+.spin-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.result {
+  padding: 1rem;
+  background: #fef3c7;
+  border-radius: 0.5rem;
+  font-size: 1.25rem;
+  text-align: center;
+}

@@ -1,0 +1,40 @@
+.play-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+.play-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.play-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.back-link,
+.edit-link {
+  color: #4f46e5;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.play-page main {
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #6b7280;
+}
