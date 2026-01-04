@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { loadRoulettes, saveRoulettes } from './storage'
 import type { Roulette } from '../types'
 
