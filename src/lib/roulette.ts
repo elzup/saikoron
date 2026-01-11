@@ -1,6 +1,15 @@
 import { nanoid } from 'nanoid'
 import type { Roulette, RouletteItem } from '../types'
 
+export function generateRouletteName(items: RouletteItem[]): string {
+  const labels = items
+    .filter((item) => item.label.trim())
+    .map((item) => item.label.trim())
+  if (labels.length === 0) return '新しいルーレット'
+  if (labels.length <= 3) return labels.join('・')
+  return `${labels.slice(0, 3).join('・')}...`
+}
+
 export function createRoulette(name: string, items: Omit<RouletteItem, 'id'>[]): Roulette {
   const now = Date.now()
   return {

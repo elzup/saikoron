@@ -1,9 +1,9 @@
-.play-page {
+.new-page {
   min-height: 100vh;
   background: #f3f4f6;
 }
 
-.play-header {
+.new-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -12,90 +12,78 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.play-header h1 {
+.new-header h1 {
   margin: 0;
   font-size: 1.25rem;
   color: #1f2937;
 }
 
-.back-link,
-.edit-link {
+.new-header .back-link {
   color: #4f46e5;
   text-decoration: none;
   font-size: 0.875rem;
 }
 
-.play-page main {
-  padding: 2rem 1rem;
-  display: flex;
-  justify-content: center;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  color: #6b7280;
-}
-
-.edit-toggle {
-  background: none;
-  border: 1px solid #4f46e5;
-  color: #4f46e5;
-  padding: 0.25rem 0.75rem;
+.create-button {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   font-size: 0.875rem;
   cursor: pointer;
 }
 
-.edit-toggle.active {
-  background: #4f46e5;
-  color: white;
+.create-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }
 
-.inline-editor {
-  background: white;
-  border-top: 1px solid #e5e7eb;
+.new-page main {
   padding: 1rem;
 }
 
-.inline-editor .items-list {
+.items-editor {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.items-editor .hint {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0 0 1rem 0;
+}
+
+.items-editor .items-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.inline-editor .item-row {
+.items-editor .item-row {
   display: flex;
   gap: 0.5rem;
   align-items: center;
 }
 
-.inline-editor .item-number {
+.items-editor .item-number {
   color: #9ca3af;
   font-size: 0.875rem;
   width: 1.5rem;
   text-align: center;
 }
 
-.inline-editor input[type="text"] {
+.items-editor input[type="text"] {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 1rem;
 }
 
-.inline-editor .weight-input {
-  width: 3.5rem;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  text-align: center;
-}
-
-.inline-editor .remove-button {
+.items-editor .remove-button {
   background: none;
   border: none;
   color: #ef4444;
@@ -104,18 +92,19 @@
   padding: 0.25rem 0.5rem;
 }
 
-.inline-editor .remove-button:disabled {
+.items-editor .remove-button:disabled {
   color: #d1d5db;
   cursor: not-allowed;
 }
 
-.inline-editor .add-button {
-  margin-top: 0.5rem;
+.items-editor .add-button {
+  margin-top: 0.75rem;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: #f3f4f6;
   border: 1px dashed #d1d5db;
   border-radius: 4px;
   color: #6b7280;
   cursor: pointer;
+  font-size: 1rem;
 }
