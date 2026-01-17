@@ -14,6 +14,7 @@ describe('storage', () => {
       { id: 'item-1', label: '項目1', weight: 1 },
       { id: 'item-2', label: '項目2', weight: 2 },
     ],
+    history: [],
     createdAt: 1000,
     updatedAt: 2000,
   }

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { Roulette, RouletteItem } from '../types'
+import type { Roulette, RouletteItem, ResultLog } from '../types'
 
 export function generateRouletteName(items: RouletteItem[]): string {
   const labels = items
@@ -20,6 +20,7 @@ export function createRoulette(name: string, items: Omit<RouletteItem, 'id'>[]):
       label: item.label,
       weight: item.weight ?? 1,
     })),
+    history: [],
     createdAt: now,
     updatedAt: now,
   }
@@ -33,7 +34,16 @@ export function createRouletteItem(label: string, weight = 1): RouletteItem {
   }
 }
 
-export function updateRoulette(roulette: Roulette, updates: Partial<Pick<Roulette, 'name' | 'items'>>): Roulette {
+export function createResultLog(item: RouletteItem): ResultLog {
+  return {
+    id: nanoid(),
+    itemId: item.id,
+    label: item.label,
+    timestamp: Date.now(),
+  }
+}
+
+export function updateRoulette(roulette: Roulette, updates: Partial<Pick<Roulette, 'name' | 'items' | 'history'>>): Roulette {
   return {
     ...roulette,
     ...updates,
@@ -51,6 +61,7 @@ export function duplicateRoulette(roulette: Roulette): Roulette {
       ...item,
       id: nanoid(),
     })),
+    history: [],
     createdAt: now,
     updatedAt: now,
   }

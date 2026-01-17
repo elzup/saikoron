@@ -11,11 +11,21 @@ type ViewMode = 'wheel' | 'slot'
 
 export function PlayPage() {
   const { id } = useParams<{ id: string }>()
-  const { getRoulette, editRoulette, isLoaded } = useRoulettes()
+  const { getRoulette, editRoulette, addHistory, clearHistory, isLoaded } = useRoulettes()
   const [isEditing, setIsEditing] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('wheel')
+  const [showHistory, setShowHistory] = useState(false)
 
   const roulette = id ? getRoulette(id) : undefined
+
+  const handleResult = useCallback(
+    (item: RouletteItem) => {
+      if (roulette) {
+        addHistory(roulette.id, item)
+      }
+    },
+    [roulette, addHistory]
+  )
 
   const updateItems = useCallback(
     (newItems: RouletteItem[]) => {
@@ -65,6 +75,8 @@ export function PlayPage() {
     return <Navigate to="/" replace />
   }
 
+  const history = roulette.history || []
+
   return (
     <div className="play-page">
       <header className="page-header">
@@ -87,6 +99,13 @@ export function PlayPage() {
             </button>
           </div>
           <button
+            className={`history-toggle ${showHistory ? 'active' : ''}`}
+            onClick={() => setShowHistory(!showHistory)}
+            title="履歴"
+          >
+            📋 {history.length > 0 && <span className="badge">{history.length}</span>}
+          </button>
+          <button
             className={`edit-toggle ${isEditing ? 'active' : ''}`}
             onClick={() => setIsEditing(!isEditing)}
           >
@@ -96,11 +115,43 @@ export function PlayPage() {
       </header>
       <main>
         {viewMode === 'wheel' ? (
-          <RouletteWheel items={roulette.items} />
+          <RouletteWheel items={roulette.items} onResult={handleResult} />
         ) : (
-          <SlotRoulette items={roulette.items} />
+          <SlotRoulette items={roulette.items} onResult={handleResult} />
         )}
       </main>
+
+      {showHistory && (
+        <div className="history-panel">
+          <div className="history-header">
+            <h2>履歴 ({history.length})</h2>
+            {history.length > 0 && (
+              <button
+                className="clear-history"
+                onClick={() => clearHistory(roulette.id)}
+              >
+                クリア
+              </button>
+            )}
+          </div>
+          {history.length === 0 ? (
+            <p className="empty-history">まだ履歴がありません</p>
+          ) : (
+            <ul className="history-list">
+              {[...history].reverse().map((log, i) => (
+                <li key={log.id}>
+                  <span className="history-number">{history.length - i}</span>
+                  <span className="history-label">{log.label}</span>
+                  <span className="history-time">
+                    {new Date(log.timestamp).toLocaleTimeString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       {isEditing && (
         <div className="inline-editor">
           <div className="items-list">

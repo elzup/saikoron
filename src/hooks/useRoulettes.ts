@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Roulette, RouletteItem } from '../types'
 import { loadRoulettes, saveRoulettes } from '../lib/storage'
-import { createRoulette, updateRoulette, duplicateRoulette } from '../lib/roulette'
+import { createRoulette, updateRoulette, duplicateRoulette, createResultLog } from '../lib/roulette'
 
 export function useRoulettes() {
   const [roulettes, setRoulettes] = useState<Roulette[]>([])
@@ -24,7 +24,7 @@ export function useRoulettes() {
     return newRoulette
   }, [])
 
-  const editRoulette = useCallback((id: string, updates: Partial<Pick<Roulette, 'name' | 'items'>>) => {
+  const editRoulette = useCallback((id: string, updates: Partial<Pick<Roulette, 'name' | 'items' | 'history'>>) => {
     setRoulettes((prev) =>
       prev.map((r) => (r.id === id ? updateRoulette(r, updates) : r))
     )
@@ -47,6 +47,25 @@ export function useRoulettes() {
     [roulettes]
   )
 
+  const addHistory = useCallback((id: string, item: RouletteItem) => {
+    setRoulettes((prev) =>
+      prev.map((r) => {
+        if (r.id !== id) return r
+        const log = createResultLog(item)
+        return {
+          ...r,
+          history: [...(r.history || []), log],
+        }
+      })
+    )
+  }, [])
+
+  const clearHistory = useCallback((id: string) => {
+    setRoulettes((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, history: [] } : r))
+    )
+  }, [])
+
   return {
     roulettes,
     isLoaded,
@@ -55,5 +74,7 @@ export function useRoulettes() {
     removeRoulette,
     copyRoulette,
     getRoulette,
+    addHistory,
+    clearHistory,
   }
 }
