@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useRoulettes } from '../hooks/useRoulettes'
 import { createRouletteItem, generateRouletteName } from '../lib/roulette'
 import type { RouletteItem } from '../types'
@@ -41,8 +41,7 @@ export function NewPage() {
 
   return (
     <div className="new-page">
-      <header className="new-header">
-        <Link to="/" className="back-link">← 戻る</Link>
+      <header className="page-header">
         <h1>新規作成</h1>
         <button
           className="create-button"

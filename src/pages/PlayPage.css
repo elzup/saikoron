@@ -3,26 +3,24 @@
   background: #f3f4f6;
 }
 
-.play-header {
+.play-page .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  padding-left: 4rem;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.play-header h1 {
+.play-page .page-header h1 {
   margin: 0;
   font-size: 1.25rem;
   color: #1f2937;
-}
-
-.back-link,
-.edit-link {
-  color: #4f46e5;
-  text-decoration: none;
-  font-size: 0.875rem;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .play-page main {
@@ -47,6 +45,7 @@
   border-radius: 4px;
   font-size: 0.875rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .edit-toggle.active {
@@ -118,4 +117,10 @@
   border-radius: 4px;
   color: #6b7280;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .play-page .page-header {
+    padding-left: 1rem;
+  }
 }

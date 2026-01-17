@@ -3,25 +3,20 @@
   background: #f3f4f6;
 }
 
-.new-header {
+.new-page .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  padding-left: 4rem;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.new-header h1 {
+.new-page .page-header h1 {
   margin: 0;
   font-size: 1.25rem;
   color: #1f2937;
-}
-
-.new-header .back-link {
-  color: #4f46e5;
-  text-decoration: none;
-  font-size: 0.875rem;
 }
 
 .create-button {
@@ -107,4 +102,10 @@
   color: #6b7280;
   cursor: pointer;
   font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .new-page .page-header {
+    padding-left: 1rem;
+  }
 }

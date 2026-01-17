@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { RouletteList } from '../components/RouletteList'
 import { useRoulettes } from '../hooks/useRoulettes'
 import './HomePage.css'
@@ -12,11 +11,8 @@ export function HomePage() {
 
   return (
     <div className="home-page">
-      <header className="header">
-        <h1>Saikoron</h1>
-        <Link to="/new" className="new-button">
-          + 新規作成
-        </Link>
+      <header className="page-header">
+        <h1>ルーレット一覧</h1>
       </header>
       <main>
         <RouletteList

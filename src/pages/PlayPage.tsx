@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useParams, Navigate, Link } from 'react-router-dom'
+import { useParams, Navigate } from 'react-router-dom'
 import { RouletteWheel } from '../components/RouletteWheel'
 import { useRoulettes } from '../hooks/useRoulettes'
 import { createRouletteItem, generateRouletteName } from '../lib/roulette'
@@ -63,8 +63,7 @@ export function PlayPage() {
 
   return (
     <div className="play-page">
-      <header className="play-header">
-        <Link to="/" className="back-link">← 戻る</Link>
+      <header className="page-header">
         <h1>{roulette.name}</h1>
         <button
           className={`edit-toggle ${isEditing ? 'active' : ''}`}
