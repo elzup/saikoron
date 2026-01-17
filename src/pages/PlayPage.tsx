@@ -120,6 +120,33 @@ export function PlayPage() {
     [roulette, updateItems]
   )
 
+  const shuffleItems = useCallback(() => {
+    if (!roulette) return
+    const shuffled = [...roulette.items]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    editRoulette(roulette.id, { items: shuffled })
+  }, [roulette, editRoulette])
+
+  const resetWeights = useCallback(() => {
+    if (!roulette) return
+    const newItems = roulette.items.map((item) => ({ ...item, weight: 1 }))
+    editRoulette(roulette.id, { items: newItems })
+  }, [roulette, editRoulette])
+
+  const removeEmptyItems = useCallback(() => {
+    if (!roulette) return
+    const nonEmpty = roulette.items.filter((item) => item.label.trim())
+    if (nonEmpty.length >= 2) {
+      editRoulette(roulette.id, {
+        items: nonEmpty,
+        name: generateRouletteName(nonEmpty),
+      })
+    }
+  }, [roulette, editRoulette])
+
   if (!isLoaded) {
     return <div className="loading">読み込み中...</div>
   }
@@ -251,6 +278,22 @@ export function PlayPage() {
       {isEditing && (
         <div className="inline-editor">
           <div className="editor-header">
+            <div className="bulk-actions">
+              <button className="bulk-button" onClick={shuffleItems} title="シャッフル">
+                🔀 シャッフル
+              </button>
+              <button className="bulk-button" onClick={resetWeights} title="重みをリセット">
+                ⚖️ 重みリセット
+              </button>
+              <button
+                className="bulk-button"
+                onClick={removeEmptyItems}
+                title="空の項目を削除"
+                disabled={roulette.items.filter((i) => !i.label.trim()).length === 0}
+              >
+                🧹 空を削除
+              </button>
+            </div>
             <div className="edit-mode-toggle">
               <button
                 className={!textEditMode ? 'active' : ''}
