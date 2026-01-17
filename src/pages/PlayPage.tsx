@@ -32,6 +32,19 @@ export function PlayPage() {
     return roulette.items.map((item) => item.label).join('\n')
   }, [roulette])
 
+  const totalWeight = useMemo(() => {
+    if (!roulette) return 0
+    return roulette.items.reduce((sum, item) => sum + item.weight, 0)
+  }, [roulette])
+
+  const getPercentage = useCallback(
+    (weight: number) => {
+      if (totalWeight === 0) return 0
+      return (weight / totalWeight) * 100
+    },
+    [totalWeight]
+  )
+
   const handleTextChange = useCallback(
     (text: string) => {
       if (!roulette) return
@@ -236,7 +249,7 @@ export function PlayPage() {
                 >
                   <span className="item-color" style={{ background: `hsl(${(index * 45) % 360}, 70%, 50%)` }} />
                   <span className="item-name">{item.label || `項目${index + 1}`}</span>
-                  {item.weight !== 1 && <span className="item-weight">×{item.weight}</span>}
+                  <span className="item-probability">{getPercentage(item.weight).toFixed(1)}%</span>
                 </li>
               ))}
             </ul>
@@ -327,16 +340,19 @@ export function PlayPage() {
                     onChange={(e) => updateItem(item.id, { label: e.target.value })}
                     placeholder={`項目${index + 1}`}
                   />
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={item.weight}
-                    onChange={(e) =>
-                      updateItem(item.id, { weight: Number(e.target.value) || 1 })
-                    }
-                    className="weight-input"
-                  />
+                  <div className="weight-group">
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={item.weight}
+                      onChange={(e) =>
+                        updateItem(item.id, { weight: Number(e.target.value) || 1 })
+                      }
+                      className="weight-input"
+                    />
+                    <span className="probability">{getPercentage(item.weight).toFixed(1)}%</span>
+                  </div>
                   <button
                     className="remove-button"
                     onClick={() => removeItem(item.id)}

@@ -215,12 +215,25 @@
   font-size: 1rem;
 }
 
+.weight-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .inline-editor .weight-input {
   width: 3.5rem;
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   text-align: center;
+}
+
+.probability {
+  font-size: 0.75rem;
+  color: #6b7280;
+  min-width: 3rem;
+  text-align: right;
 }
 
 .inline-editor .remove-button {
@@ -474,6 +487,12 @@
 .item-weight {
   font-size: 0.75rem;
   color: #9ca3af;
+}
+
+.item-probability {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 @media (min-width: 768px) {
