@@ -1,15 +1,19 @@
 import { useState, useCallback } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { RouletteWheel } from '../components/RouletteWheel'
+import { SlotRoulette } from '../components/SlotRoulette'
 import { useRoulettes } from '../hooks/useRoulettes'
 import { createRouletteItem, generateRouletteName } from '../lib/roulette'
 import type { RouletteItem } from '../types'
 import './PlayPage.css'
 
+type ViewMode = 'wheel' | 'slot'
+
 export function PlayPage() {
   const { id } = useParams<{ id: string }>()
   const { getRoulette, editRoulette, isLoaded } = useRoulettes()
   const [isEditing, setIsEditing] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('wheel')
 
   const roulette = id ? getRoulette(id) : undefined
 
@@ -65,15 +69,37 @@ export function PlayPage() {
     <div className="play-page">
       <header className="page-header">
         <h1>{roulette.name}</h1>
-        <button
-          className={`edit-toggle ${isEditing ? 'active' : ''}`}
-          onClick={() => setIsEditing(!isEditing)}
-        >
-          {isEditing ? '完了' : '編集'}
-        </button>
+        <div className="header-actions">
+          <div className="view-toggle">
+            <button
+              className={viewMode === 'wheel' ? 'active' : ''}
+              onClick={() => setViewMode('wheel')}
+              title="ホイール"
+            >
+              ◎
+            </button>
+            <button
+              className={viewMode === 'slot' ? 'active' : ''}
+              onClick={() => setViewMode('slot')}
+              title="スロット"
+            >
+              ≡
+            </button>
+          </div>
+          <button
+            className={`edit-toggle ${isEditing ? 'active' : ''}`}
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            {isEditing ? '完了' : '編集'}
+          </button>
+        </div>
       </header>
       <main>
-        <RouletteWheel items={roulette.items} />
+        {viewMode === 'wheel' ? (
+          <RouletteWheel items={roulette.items} />
+        ) : (
+          <SlotRoulette items={roulette.items} />
+        )}
       </main>
       {isEditing && (
         <div className="inline-editor">
