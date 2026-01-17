@@ -18,6 +18,7 @@ export function PlayPage() {
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set())
   const [autoExclude, setAutoExclude] = useState(false)
   const [textEditMode, setTextEditMode] = useState(false)
+  const [showItemList, setShowItemList] = useState(false)
 
   const roulette = id ? getRoulette(id) : undefined
 
@@ -167,6 +168,13 @@ export function PlayPage() {
             </button>
           )}
           <button
+            className={`list-toggle ${showItemList ? 'active' : ''}`}
+            onClick={() => setShowItemList(!showItemList)}
+            title="項目一覧"
+          >
+            📝
+          </button>
+          <button
             className={`history-toggle ${showHistory ? 'active' : ''}`}
             onClick={() => setShowHistory(!showHistory)}
             title="履歴"
@@ -181,11 +189,31 @@ export function PlayPage() {
           </button>
         </div>
       </header>
-      <main>
-        {viewMode === 'wheel' ? (
-          <RouletteWheel items={activeItems} onResult={handleResult} />
-        ) : (
-          <SlotRoulette items={activeItems} onResult={handleResult} />
+      <main className={showItemList ? 'with-sidebar' : ''}>
+        <div className="roulette-area">
+          {viewMode === 'wheel' ? (
+            <RouletteWheel items={activeItems} onResult={handleResult} />
+          ) : (
+            <SlotRoulette items={activeItems} onResult={handleResult} />
+          )}
+        </div>
+        {showItemList && (
+          <aside className="item-list-panel">
+            <h3>項目一覧 ({roulette.items.length})</h3>
+            <ul className="item-list">
+              {roulette.items.map((item, index) => (
+                <li
+                  key={item.id}
+                  className={excludedIds.has(item.id) ? 'excluded' : ''}
+                  onClick={() => toggleExclude(item.id)}
+                >
+                  <span className="item-color" style={{ background: `hsl(${(index * 45) % 360}, 70%, 50%)` }} />
+                  <span className="item-name">{item.label || `項目${index + 1}`}</span>
+                  {item.weight !== 1 && <span className="item-weight">×{item.weight}</span>}
+                </li>
+              ))}
+            </ul>
+          </aside>
         )}
       </main>
 
