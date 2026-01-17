@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { RouletteWheel } from '../components/RouletteWheel'
 import { SlotRoulette } from '../components/SlotRoulette'
@@ -15,17 +15,43 @@ export function PlayPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('wheel')
   const [showHistory, setShowHistory] = useState(false)
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set())
+  const [autoExclude, setAutoExclude] = useState(false)
 
   const roulette = id ? getRoulette(id) : undefined
+
+  const activeItems = useMemo(() => {
+    if (!roulette) return []
+    return roulette.items.filter((item) => !excludedIds.has(item.id))
+  }, [roulette, excludedIds])
 
   const handleResult = useCallback(
     (item: RouletteItem) => {
       if (roulette) {
         addHistory(roulette.id, item)
+        if (autoExclude) {
+          setExcludedIds((prev) => new Set([...prev, item.id]))
+        }
       }
     },
-    [roulette, addHistory]
+    [roulette, addHistory, autoExclude]
   )
+
+  const toggleExclude = useCallback((itemId: string) => {
+    setExcludedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(itemId)) {
+        next.delete(itemId)
+      } else {
+        next.add(itemId)
+      }
+      return next
+    })
+  }, [])
+
+  const resetExclusions = useCallback(() => {
+    setExcludedIds(new Set())
+  }, [])
 
   const updateItems = useCallback(
     (newItems: RouletteItem[]) => {
@@ -99,6 +125,22 @@ export function PlayPage() {
             </button>
           </div>
           <button
+            className={`exclude-toggle ${autoExclude ? 'active' : ''}`}
+            onClick={() => setAutoExclude(!autoExclude)}
+            title="自動除外"
+          >
+            🚫
+          </button>
+          {excludedIds.size > 0 && (
+            <button
+              className="reset-exclude"
+              onClick={resetExclusions}
+              title="除外をリセット"
+            >
+              ↺ {excludedIds.size}
+            </button>
+          )}
+          <button
             className={`history-toggle ${showHistory ? 'active' : ''}`}
             onClick={() => setShowHistory(!showHistory)}
             title="履歴"
@@ -115,9 +157,9 @@ export function PlayPage() {
       </header>
       <main>
         {viewMode === 'wheel' ? (
-          <RouletteWheel items={roulette.items} onResult={handleResult} />
+          <RouletteWheel items={activeItems} onResult={handleResult} />
         ) : (
-          <SlotRoulette items={roulette.items} onResult={handleResult} />
+          <SlotRoulette items={activeItems} onResult={handleResult} />
         )}
       </main>
 
@@ -156,7 +198,14 @@ export function PlayPage() {
         <div className="inline-editor">
           <div className="items-list">
             {roulette.items.map((item, index) => (
-              <div key={item.id} className="item-row">
+              <div key={item.id} className={`item-row ${excludedIds.has(item.id) ? 'excluded' : ''}`}>
+                <button
+                  className={`exclude-item-button ${excludedIds.has(item.id) ? 'excluded' : ''}`}
+                  onClick={() => toggleExclude(item.id)}
+                  title={excludedIds.has(item.id) ? '含める' : '除外'}
+                >
+                  {excludedIds.has(item.id) ? '○' : '●'}
+                </button>
                 <span className="item-number">{index + 1}</span>
                 <input
                   type="text"

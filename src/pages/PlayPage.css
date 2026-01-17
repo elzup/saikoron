@@ -248,6 +248,55 @@
   cursor: pointer;
 }
 
+.exclude-toggle {
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.exclude-toggle.active {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.reset-exclude {
+  background: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.reset-exclude:hover {
+  background: #fee2e2;
+}
+
+.exclude-item-button {
+  background: none;
+  border: none;
+  color: #22c55e;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  flex-shrink: 0;
+}
+
+.exclude-item-button.excluded {
+  color: #d1d5db;
+}
+
+.inline-editor .item-row.excluded {
+  opacity: 0.5;
+}
+
+.inline-editor .item-row.excluded input {
+  text-decoration: line-through;
+}
+
 @media (min-width: 768px) {
   .play-page .page-header {
     padding-left: 1rem;
