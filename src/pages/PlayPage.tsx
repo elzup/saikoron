@@ -17,6 +17,7 @@ export function PlayPage() {
   const [showHistory, setShowHistory] = useState(false)
   const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set())
   const [autoExclude, setAutoExclude] = useState(false)
+  const [textEditMode, setTextEditMode] = useState(false)
 
   const roulette = id ? getRoulette(id) : undefined
 
@@ -24,6 +25,31 @@ export function PlayPage() {
     if (!roulette) return []
     return roulette.items.filter((item) => !excludedIds.has(item.id))
   }, [roulette, excludedIds])
+
+  const textContent = useMemo(() => {
+    if (!roulette) return ''
+    return roulette.items.map((item) => item.label).join('\n')
+  }, [roulette])
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      if (!roulette) return
+      const lines = text.split('\n')
+      const newItems = lines.map((label, index) => {
+        const existingItem = roulette.items[index]
+        if (existingItem) {
+          return { ...existingItem, label }
+        }
+        return createRouletteItem(label)
+      })
+      // Preserve weights for existing items, but allow any number of items (validation happens on updateItems)
+      editRoulette(roulette.id, {
+        items: newItems,
+        name: generateRouletteName(newItems),
+      })
+    },
+    [roulette, editRoulette]
+  )
 
   const handleResult = useCallback(
     (item: RouletteItem) => {
@@ -196,46 +222,73 @@ export function PlayPage() {
 
       {isEditing && (
         <div className="inline-editor">
-          <div className="items-list">
-            {roulette.items.map((item, index) => (
-              <div key={item.id} className={`item-row ${excludedIds.has(item.id) ? 'excluded' : ''}`}>
-                <button
-                  className={`exclude-item-button ${excludedIds.has(item.id) ? 'excluded' : ''}`}
-                  onClick={() => toggleExclude(item.id)}
-                  title={excludedIds.has(item.id) ? '含める' : '除外'}
-                >
-                  {excludedIds.has(item.id) ? '○' : '●'}
-                </button>
-                <span className="item-number">{index + 1}</span>
-                <input
-                  type="text"
-                  value={item.label}
-                  onChange={(e) => updateItem(item.id, { label: e.target.value })}
-                  placeholder={`項目${index + 1}`}
-                />
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={item.weight}
-                  onChange={(e) =>
-                    updateItem(item.id, { weight: Number(e.target.value) || 1 })
-                  }
-                  className="weight-input"
-                />
-                <button
-                  className="remove-button"
-                  onClick={() => removeItem(item.id)}
-                  disabled={roulette.items.length <= 2}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+          <div className="editor-header">
+            <div className="edit-mode-toggle">
+              <button
+                className={!textEditMode ? 'active' : ''}
+                onClick={() => setTextEditMode(false)}
+              >
+                リスト
+              </button>
+              <button
+                className={textEditMode ? 'active' : ''}
+                onClick={() => setTextEditMode(true)}
+              >
+                テキスト
+              </button>
+            </div>
           </div>
-          <button className="add-button" onClick={addItem}>
-            + 追加
-          </button>
+          <div className="editor-content">
+            <div className={`items-list ${textEditMode ? 'hidden' : ''}`}>
+              {roulette.items.map((item, index) => (
+                <div key={item.id} className={`item-row ${excludedIds.has(item.id) ? 'excluded' : ''}`}>
+                  <button
+                    className={`exclude-item-button ${excludedIds.has(item.id) ? 'excluded' : ''}`}
+                    onClick={() => toggleExclude(item.id)}
+                    title={excludedIds.has(item.id) ? '含める' : '除外'}
+                  >
+                    {excludedIds.has(item.id) ? '○' : '●'}
+                  </button>
+                  <span className="item-number">{index + 1}</span>
+                  <input
+                    type="text"
+                    value={item.label}
+                    onChange={(e) => updateItem(item.id, { label: e.target.value })}
+                    placeholder={`項目${index + 1}`}
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={item.weight}
+                    onChange={(e) =>
+                      updateItem(item.id, { weight: Number(e.target.value) || 1 })
+                    }
+                    className="weight-input"
+                  />
+                  <button
+                    className="remove-button"
+                    onClick={() => removeItem(item.id)}
+                    disabled={roulette.items.length <= 2}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <button className="add-button" onClick={addItem}>
+                + 追加
+              </button>
+            </div>
+            <div className={`text-editor ${!textEditMode ? 'hidden' : ''}`}>
+              <textarea
+                value={textContent}
+                onChange={(e) => handleTextChange(e.target.value)}
+                placeholder="項目を改行区切りで入力&#10;例:&#10;項目1&#10;項目2&#10;項目3"
+                rows={10}
+              />
+              <p className="text-hint">改行区切りで項目を入力（最低2項目必要）</p>
+            </div>
+          </div>
         </div>
       )}
     </div>
