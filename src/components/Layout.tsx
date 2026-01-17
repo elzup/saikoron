@@ -30,13 +30,23 @@ export function Layout({ children }: Props) {
         </div>
 
         <nav className="sidebar-nav">
-          <Link
-            to="/new"
-            className="nav-item new-item"
-            onClick={() => setIsOpen(false)}
-          >
-            + 新規作成
-          </Link>
+          <div className="nav-section">
+            <span className="nav-section-title">ツール</span>
+            <Link
+              to="/new"
+              className="nav-item new-item"
+              onClick={() => setIsOpen(false)}
+            >
+              + 新規ルーレット
+            </Link>
+            <Link
+              to="/random-number"
+              className={`nav-item tool-item ${location.pathname === '/random-number' ? 'active' : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              🎲 ランダム数字
+            </Link>
+          </div>
 
           <div className="nav-section">
             <span className="nav-section-title">ルーレット一覧</span>
