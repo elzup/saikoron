@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 質問・相談
+    url: https://github.com/elzup/saikoron/discussions
+    about: 機能の使い方や質問がある場合はDiscussionsをご利用ください
