@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:e2e": "./e2e/test-roulette-creation.sh",
     "deploy": "npm run build && firebase deploy",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",

@@ -22,3 +22,7 @@ firebase-debug.log
 
 # Spec (private)
 spec.md
+
+# E2E test outputs
+e2e/screenshots/
+e2e/videos/
