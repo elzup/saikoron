@@ -6,6 +6,7 @@ import './SlotRoulette.css'
 interface Props {
   items: RouletteItem[]
   onResult?: (item: RouletteItem) => void
+  triggerSpin?: number
 }
 
 const COLORS = [
@@ -13,11 +14,12 @@ const COLORS = [
   '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899',
 ]
 
-export function SlotRoulette({ items, onResult }: Props) {
+export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<RouletteItem | null>(null)
   const [displayIndex, setDisplayIndex] = useState(0)
   const intervalRef = useRef<number | null>(null)
+  const triggerRef = useRef(triggerSpin ?? 0)
 
   useEffect(() => {
     return () => {
@@ -71,6 +73,13 @@ export function SlotRoulette({ items, onResult }: Props) {
 
     intervalRef.current = window.setInterval(animate, speed)
   }, [items, isSpinning, onResult])
+
+  useEffect(() => {
+    if (triggerSpin !== undefined && triggerSpin !== triggerRef.current) {
+      triggerRef.current = triggerSpin
+      spin()
+    }
+  }, [triggerSpin, spin])
 
   const prevIndex = (displayIndex - 1 + items.length) % items.length
   const nextIndex = (displayIndex + 1) % items.length

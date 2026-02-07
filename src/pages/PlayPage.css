@@ -403,6 +403,22 @@
   color: #9ca3af;
 }
 
+.auto-spin-toggle {
+  background: none;
+  border: 1px solid #d1d5db;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.auto-spin-toggle.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #059669;
+}
+
 .list-toggle {
   background: none;
   border: 1px solid #d1d5db;

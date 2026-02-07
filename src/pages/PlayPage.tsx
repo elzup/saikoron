@@ -3,6 +3,7 @@ import { useParams, Navigate } from 'react-router-dom'
 import { RouletteWheel } from '../components/RouletteWheel'
 import { SlotRoulette } from '../components/SlotRoulette'
 import { useRoulettes } from '../hooks/useRoulettes'
+import { useAutoSpin } from '../hooks/useAutoSpin'
 import { createRouletteItem, generateRouletteName } from '../lib/roulette'
 import type { RouletteItem } from '../types'
 import './PlayPage.css'
@@ -19,6 +20,13 @@ export function PlayPage() {
   const [autoExclude, setAutoExclude] = useState(false)
   const [textEditMode, setTextEditMode] = useState(false)
   const [showItemList, setShowItemList] = useState(false)
+  const [spinTrigger, setSpinTrigger] = useState(0)
+
+  const triggerSpin = useCallback(() => {
+    setSpinTrigger((prev) => prev + 1)
+  }, [])
+
+  const { isAutoSpin, toggleAutoSpin, remainingSeconds } = useAutoSpin(triggerSpin)
 
   const roulette = id ? getRoulette(id) : undefined
 
@@ -208,6 +216,13 @@ export function PlayPage() {
             </button>
           )}
           <button
+            className={`auto-spin-toggle ${isAutoSpin ? 'active' : ''}`}
+            onClick={toggleAutoSpin}
+            title={isAutoSpin ? `自動スピン ON (${remainingSeconds}s)` : '自動スピン'}
+          >
+            {isAutoSpin ? `⏱${remainingSeconds}s` : '⏱'}
+          </button>
+          <button
             className={`list-toggle ${showItemList ? 'active' : ''}`}
             onClick={() => setShowItemList(!showItemList)}
             title="項目一覧"
@@ -232,9 +247,9 @@ export function PlayPage() {
       <main className={showItemList ? 'with-sidebar' : ''}>
         <div className="roulette-area">
           {viewMode === 'wheel' ? (
-            <RouletteWheel items={activeItems} onResult={handleResult} />
+            <RouletteWheel items={activeItems} onResult={handleResult} triggerSpin={spinTrigger} />
           ) : (
-            <SlotRoulette items={activeItems} onResult={handleResult} />
+            <SlotRoulette items={activeItems} onResult={handleResult} triggerSpin={spinTrigger} />
           )}
         </div>
         {showItemList && (
