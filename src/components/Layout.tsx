@@ -46,6 +46,13 @@ export function Layout({ children }: Props) {
             >
               🎲 ランダム数字
             </Link>
+            <Link
+              to="/list-draw"
+              className={`nav-item tool-item ${location.pathname === '/list-draw' ? 'active' : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              🎯 リスト抽選機
+            </Link>
           </div>
 
           <div className="nav-section">
