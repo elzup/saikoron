@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useRoulettes } from '../hooks/useRoulettes'
+import { useDice } from '../hooks/useDice'
+import { LoginButton } from './LoginButton'
 import './Layout.css'
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 
 export function Layout({ children }: Props) {
   const [isOpen, setIsOpen] = useState(false)
-  const { roulettes, isLoaded } = useRoulettes()
+  const { dice, isLoaded } = useDice()
   const location = useLocation()
 
   return (
@@ -27,6 +28,7 @@ export function Layout({ children }: Props) {
           <Link to="/" className="logo" onClick={() => setIsOpen(false)}>
             Saikoron
           </Link>
+          <LoginButton />
         </div>
 
         <nav className="sidebar-nav">
@@ -37,7 +39,7 @@ export function Layout({ children }: Props) {
               className="nav-item new-item"
               onClick={() => setIsOpen(false)}
             >
-              + 新規ルーレット
+              + 新規ダイス
             </Link>
             <Link
               to="/random-number"
@@ -56,18 +58,18 @@ export function Layout({ children }: Props) {
           </div>
 
           <div className="nav-section">
-            <span className="nav-section-title">ルーレット一覧</span>
-            {isLoaded && roulettes.length === 0 && (
-              <p className="empty-message">まだルーレットがありません</p>
+            <span className="nav-section-title">ダイス一覧</span>
+            {isLoaded && dice.length === 0 && (
+              <p className="empty-message">まだダイスがありません</p>
             )}
-            {roulettes.map((roulette) => (
+            {dice.map((d) => (
               <Link
-                key={roulette.id}
-                to={`/play/${roulette.id}`}
-                className={`nav-item ${location.pathname === `/play/${roulette.id}` ? 'active' : ''}`}
+                key={d.id}
+                to={`/play/${d.id}`}
+                className={`nav-item ${location.pathname === `/play/${d.id}` ? 'active' : ''}`}
                 onClick={() => setIsOpen(false)}
               >
-                {roulette.name}
+                {d.name}
               </Link>
             ))}
           </div>

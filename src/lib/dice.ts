@@ -1,16 +1,16 @@
 import { nanoid } from 'nanoid'
-import type { Roulette, RouletteItem, ResultLog } from '../types'
+import type { Dice, DiceItem, ResultLog } from '../types'
 
-export function generateRouletteName(items: RouletteItem[]): string {
+export function generateDiceName(items: DiceItem[]): string {
   const labels = items
     .filter((item) => item.label.trim())
     .map((item) => item.label.trim())
-  if (labels.length === 0) return '新しいルーレット'
+  if (labels.length === 0) return '新しいダイス'
   if (labels.length <= 3) return labels.join('・')
   return `${labels.slice(0, 3).join('・')}...`
 }
 
-export function createRoulette(name: string, items: Omit<RouletteItem, 'id'>[]): Roulette {
+export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
   const now = Date.now()
   return {
     id: nanoid(),
@@ -23,10 +23,11 @@ export function createRoulette(name: string, items: Omit<RouletteItem, 'id'>[]):
     history: [],
     createdAt: now,
     updatedAt: now,
+    storageState: 'local',
   }
 }
 
-export function createRouletteItem(label: string, weight = 1): RouletteItem {
+export function createDiceItem(label: string, weight = 1): DiceItem {
   return {
     id: nanoid(),
     label,
@@ -34,7 +35,7 @@ export function createRouletteItem(label: string, weight = 1): RouletteItem {
   }
 }
 
-export function createResultLog(item: RouletteItem): ResultLog {
+export function createResultLog(item: DiceItem): ResultLog {
   return {
     id: nanoid(),
     itemId: item.id,
@@ -43,31 +44,32 @@ export function createResultLog(item: RouletteItem): ResultLog {
   }
 }
 
-export function updateRoulette(roulette: Roulette, updates: Partial<Pick<Roulette, 'name' | 'items' | 'history'>>): Roulette {
+export function updateDice(dice: Dice, updates: Partial<Pick<Dice, 'name' | 'items' | 'history'>>): Dice {
   return {
-    ...roulette,
+    ...dice,
     ...updates,
     updatedAt: Date.now(),
   }
 }
 
-export function duplicateRoulette(roulette: Roulette): Roulette {
+export function duplicateDice(dice: Dice): Dice {
   const now = Date.now()
   return {
-    ...roulette,
+    ...dice,
     id: nanoid(),
-    name: `${roulette.name} (コピー)`,
-    items: roulette.items.map((item) => ({
+    name: `${dice.name} (コピー)`,
+    items: dice.items.map((item) => ({
       ...item,
       id: nanoid(),
     })),
     history: [],
     createdAt: now,
     updatedAt: now,
+    storageState: dice.storageState,
   }
 }
 
-export function spinRoulette(items: RouletteItem[]): RouletteItem | null {
+export function spinDice(items: DiceItem[]): DiceItem | null {
   if (items.length === 0) return null
 
   const totalWeight = items.reduce((sum, item) => sum + item.weight, 0)
@@ -86,7 +88,7 @@ export function spinRoulette(items: RouletteItem[]): RouletteItem | null {
   return items[items.length - 1]
 }
 
-export function calculateItemAngle(items: RouletteItem[], index: number): { startAngle: number; endAngle: number } {
+export function calculateItemAngle(items: DiceItem[], index: number): { startAngle: number; endAngle: number } {
   const totalWeight = items.reduce((sum, item) => sum + item.weight, 0)
   if (totalWeight === 0) return { startAngle: 0, endAngle: 0 }
 

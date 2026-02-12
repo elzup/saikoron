@@ -1,4 +1,4 @@
-export interface RouletteItem {
+export interface DiceItem {
   id: string
   label: string
   weight: number
@@ -11,15 +11,18 @@ export interface ResultLog {
   timestamp: number
 }
 
-export interface Roulette {
+export type StorageState = 'local' | 'cloud'
+
+export interface Dice {
   id: string
   name: string
-  items: RouletteItem[]
+  items: DiceItem[]
   history: ResultLog[]
   createdAt: number
   updatedAt: number
+  storageState: StorageState
 }
 
 export interface AppState {
-  roulettes: Roulette[]
+  dice: Dice[]
 }

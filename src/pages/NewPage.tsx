@@ -1,26 +1,26 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useRoulettes } from '../hooks/useRoulettes'
-import { createRouletteItem, generateRouletteName } from '../lib/roulette'
-import type { RouletteItem } from '../types'
+import { useDice } from '../hooks/useDice'
+import { createDiceItem, generateDiceName } from '../lib/dice'
+import type { DiceItem } from '../types'
 import './NewPage.css'
 
 export function NewPage() {
   const navigate = useNavigate()
-  const { addRoulette } = useRoulettes()
-  const [items, setItems] = useState<RouletteItem[]>([
-    createRouletteItem(''),
-    createRouletteItem(''),
+  const { addDice } = useDice()
+  const [items, setItems] = useState<DiceItem[]>([
+    createDiceItem(''),
+    createDiceItem(''),
   ])
 
-  const updateItem = useCallback((id: string, updates: Partial<RouletteItem>) => {
+  const updateItem = useCallback((id: string, updates: Partial<DiceItem>) => {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
     )
   }, [])
 
   const addItem = useCallback(() => {
-    setItems((prev) => [...prev, createRouletteItem('')])
+    setItems((prev) => [...prev, createDiceItem('')])
   }, [])
 
   const removeItem = useCallback((id: string) => {
@@ -30,9 +30,9 @@ export function NewPage() {
   const handleCreate = () => {
     const validItems = items.filter((item) => item.label.trim())
     if (validItems.length >= 2) {
-      const name = generateRouletteName(validItems)
-      const newRoulette = addRoulette(name, validItems)
-      navigate(`/play/${newRoulette.id}`)
+      const name = generateDiceName(validItems)
+      const newDice = addDice(name, validItems)
+      navigate(`/play/${newDice.id}`)
     }
   }
 

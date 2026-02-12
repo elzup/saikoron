@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import type { RouletteItem } from '../types'
-import { spinRoulette, calculateItemAngle } from '../lib/roulette'
+import type { DiceItem } from '../types'
+import { spinDice, calculateItemAngle } from '../lib/dice'
 import './RouletteWheel.css'
 
 interface Props {
-  items: RouletteItem[]
-  onResult?: (item: RouletteItem) => void
+  items: DiceItem[]
+  onResult?: (item: DiceItem) => void
   triggerSpin?: number
 }
 
@@ -17,7 +17,7 @@ const COLORS = [
 export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
-  const [result, setResult] = useState<RouletteItem | null>(null)
+  const [result, setResult] = useState<DiceItem | null>(null)
   const triggerRef = useRef(triggerSpin ?? 0)
 
   const spin = useCallback(() => {
@@ -26,7 +26,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
     setIsSpinning(true)
     setResult(null)
 
-    const winner = spinRoulette(items)
+    const winner = spinDice(items)
     if (!winner) {
       setIsSpinning(false)
       return

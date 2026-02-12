@@ -1,8 +1,8 @@
-import type { Roulette } from '../types'
+import type { Dice } from '../types'
 
-const STORAGE_KEY = 'saikoron_roulettes'
+const STORAGE_KEY = 'saikoron_dice'
 
-export function loadRoulettes(): Roulette[] {
+export function loadDice(): Dice[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY)
     if (!data) return []
@@ -12,6 +12,10 @@ export function loadRoulettes(): Roulette[] {
   }
 }
 
-export function saveRoulettes(roulettes: Roulette[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(roulettes))
+export function saveDice(dice: Dice[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dice))
+}
+
+export function clearDice(): void {
+  localStorage.removeItem(STORAGE_KEY)
 }

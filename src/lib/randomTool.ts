@@ -59,11 +59,9 @@ export function drawFromRange(source: RangeSource): number {
   const { min, max, step, isInteger } = source
 
   if (isInteger && step === 1) {
-    // 整数の場合
     return Math.floor(Math.random() * (max - min + 1)) + min
   }
 
-  // 小数または刻みがある場合
   const steps = Math.floor((max - min) / step)
   const randomStep = Math.floor(Math.random() * (steps + 1))
   const value = min + randomStep * step
@@ -116,7 +114,6 @@ export function drawMultipleFromRange(
       results.push(drawFromRange(source))
     }
   } else {
-    // 重複なしの場合、候補数が十分か確認
     const totalCandidates =
       Math.floor((source.max - source.min) / source.step) + 1
     const targetCount = Math.min(count, totalCandidates)
@@ -318,25 +315,25 @@ export function clearHistory(tool: RandomTool): RandomTool {
 }
 
 // ========================================
-// 既存Rouletteとの変換
+// 既存Diceとの変換
 // ========================================
 
-import type { Roulette, RouletteItem, ResultLog } from '../types'
+import type { Dice, DiceItem, ResultLog } from '../types'
 
 /**
- * 既存のRouletteをRandomToolに変換
+ * DiceをRandomToolに変換
  */
-export function rouletteToRandomTool(roulette: Roulette): RandomTool {
+export function diceToRandomTool(dice: Dice): RandomTool {
   const source: ListSource = {
     type: 'list',
-    items: roulette.items.map((item) => ({
+    items: dice.items.map((item) => ({
       id: item.id,
       label: item.label,
       weight: item.weight,
     })),
   }
 
-  const history: DrawResult[] = roulette.history.map((log) => ({
+  const history: DrawResult[] = dice.history.map((log) => ({
     type: 'list' as const,
     items: [
       {
@@ -349,28 +346,28 @@ export function rouletteToRandomTool(roulette: Roulette): RandomTool {
   }))
 
   return {
-    id: roulette.id,
-    name: roulette.name,
+    id: dice.id,
+    name: dice.name,
     source,
     compatibleDrawings: getCompatibleDrawings(source),
     currentDrawing: getDefaultDrawing(source),
     drawMode: getDefaultDrawMode(),
     excludedIds: [],
     history,
-    createdAt: roulette.createdAt,
-    updatedAt: roulette.updatedAt,
+    createdAt: dice.createdAt,
+    updatedAt: dice.updatedAt,
   }
 }
 
 /**
- * RandomToolを既存のRoulette形式に変換（後方互換性）
+ * RandomToolをDice形式に変換（後方互換性）
  */
-export function randomToolToRoulette(tool: RandomTool): Roulette | null {
+export function randomToolToDice(tool: RandomTool): Dice | null {
   if (!isListSource(tool.source)) {
-    return null // 範囲ソースはRoulette形式に変換不可
+    return null // 範囲ソースはDice形式に変換不可
   }
 
-  const items: RouletteItem[] = tool.source.items.map((item) => ({
+  const items: DiceItem[] = tool.source.items.map((item) => ({
     id: item.id,
     label: item.label,
     weight: item.weight,
@@ -394,5 +391,6 @@ export function randomToolToRoulette(tool: RandomTool): Roulette | null {
     history,
     createdAt: tool.createdAt,
     updatedAt: tool.updatedAt,
+    storageState: 'local',
   }
 }

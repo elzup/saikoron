@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { DiceProvider } from './contexts/DiceContext'
 import { Layout } from './components/Layout'
 import { HomePage } from './pages/HomePage'
 import { NewPage } from './pages/NewPage'
@@ -9,15 +10,17 @@ import { ListDrawPage } from './pages/ListDrawPage'
 export function App() {
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/new" element={<NewPage />} />
-          <Route path="/play/:id" element={<PlayPage />} />
-          <Route path="/random-number" element={<RandomNumberPage />} />
-          <Route path="/list-draw" element={<ListDrawPage />} />
-        </Routes>
-      </Layout>
+      <DiceProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/new" element={<NewPage />} />
+            <Route path="/play/:id" element={<PlayPage />} />
+            <Route path="/random-number" element={<RandomNumberPage />} />
+            <Route path="/list-draw" element={<ListDrawPage />} />
+          </Routes>
+        </Layout>
+      </DiceProvider>
     </BrowserRouter>
   )
 }

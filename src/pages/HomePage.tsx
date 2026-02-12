@@ -1,9 +1,9 @@
-import { RouletteList } from '../components/RouletteList'
-import { useRoulettes } from '../hooks/useRoulettes'
+import { DiceList } from '../components/DiceList'
+import { useDice } from '../hooks/useDice'
 import './HomePage.css'
 
 export function HomePage() {
-  const { roulettes, isLoaded, removeRoulette, copyRoulette } = useRoulettes()
+  const { dice, isLoaded, removeDice, copyDice } = useDice()
 
   if (!isLoaded) {
     return <div className="loading">読み込み中...</div>
@@ -12,13 +12,13 @@ export function HomePage() {
   return (
     <div className="home-page">
       <header className="page-header">
-        <h1>ルーレット一覧</h1>
+        <h1>ダイス一覧</h1>
       </header>
       <main>
-        <RouletteList
-          roulettes={roulettes}
-          onDelete={removeRoulette}
-          onDuplicate={copyRoulette}
+        <DiceList
+          dice={dice}
+          onDelete={removeDice}
+          onDuplicate={copyDice}
         />
       </main>
     </div>

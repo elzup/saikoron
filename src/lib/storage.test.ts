@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { loadRoulettes, saveRoulettes } from './storage'
-import type { Roulette } from '../types'
+import { loadDice, saveDice } from './storage'
+import type { Dice } from '../types'
 
 describe('storage', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
-  const mockRoulette: Roulette = {
+  const mockDice: Dice = {
     id: 'test-id',
     name: 'テスト',
     items: [
@@ -17,33 +17,34 @@ describe('storage', () => {
     history: [],
     createdAt: 1000,
     updatedAt: 2000,
+    storageState: 'local',
   }
 
-  describe('loadRoulettes', () => {
+  describe('loadDice', () => {
     it('returns empty array when no data', () => {
-      expect(loadRoulettes()).toEqual([])
+      expect(loadDice()).toEqual([])
     })
 
-    it('returns saved roulettes', () => {
-      localStorage.setItem('saikoron_roulettes', JSON.stringify([mockRoulette]))
+    it('returns saved dice', () => {
+      localStorage.setItem('saikoron_dice', JSON.stringify([mockDice]))
 
-      const result = loadRoulettes()
+      const result = loadDice()
       expect(result).toHaveLength(1)
       expect(result[0].name).toBe('テスト')
     })
 
     it('returns empty array on invalid JSON', () => {
-      localStorage.setItem('saikoron_roulettes', 'invalid json')
+      localStorage.setItem('saikoron_dice', 'invalid json')
 
-      expect(loadRoulettes()).toEqual([])
+      expect(loadDice()).toEqual([])
     })
   })
 
-  describe('saveRoulettes', () => {
-    it('saves roulettes to localStorage', () => {
-      saveRoulettes([mockRoulette])
+  describe('saveDice', () => {
+    it('saves dice to localStorage', () => {
+      saveDice([mockDice])
 
-      const stored = localStorage.getItem('saikoron_roulettes')
+      const stored = localStorage.getItem('saikoron_dice')
       expect(stored).not.toBeNull()
 
       const parsed = JSON.parse(stored!)
@@ -52,10 +53,10 @@ describe('storage', () => {
     })
 
     it('overwrites existing data', () => {
-      saveRoulettes([mockRoulette])
-      saveRoulettes([])
+      saveDice([mockDice])
+      saveDice([])
 
-      const result = loadRoulettes()
+      const result = loadDice()
       expect(result).toEqual([])
     })
   })

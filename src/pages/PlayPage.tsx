@@ -2,17 +2,17 @@ import { useState, useCallback, useMemo } from 'react'
 import { useParams, Navigate } from 'react-router-dom'
 import { RouletteWheel } from '../components/RouletteWheel'
 import { SlotRoulette } from '../components/SlotRoulette'
-import { useRoulettes } from '../hooks/useRoulettes'
+import { useDice } from '../hooks/useDice'
 import { useAutoSpin } from '../hooks/useAutoSpin'
-import { createRouletteItem, generateRouletteName } from '../lib/roulette'
-import type { RouletteItem } from '../types'
+import { createDiceItem, generateDiceName } from '../lib/dice'
+import type { DiceItem } from '../types'
 import './PlayPage.css'
 
 type ViewMode = 'wheel' | 'slot'
 
 export function PlayPage() {
   const { id } = useParams<{ id: string }>()
-  const { getRoulette, editRoulette, addHistory, clearHistory, isLoaded } = useRoulettes()
+  const { getDice, editDice, addHistory, clearHistory, isLoaded } = useDice()
   const [isEditing, setIsEditing] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('wheel')
   const [showHistory, setShowHistory] = useState(false)
@@ -28,22 +28,22 @@ export function PlayPage() {
 
   const { isAutoSpin, toggleAutoSpin, remainingSeconds } = useAutoSpin(triggerSpin)
 
-  const roulette = id ? getRoulette(id) : undefined
+  const currentDice = id ? getDice(id) : undefined
 
   const activeItems = useMemo(() => {
-    if (!roulette) return []
-    return roulette.items.filter((item) => !excludedIds.has(item.id))
-  }, [roulette, excludedIds])
+    if (!currentDice) return []
+    return currentDice.items.filter((item) => !excludedIds.has(item.id))
+  }, [currentDice, excludedIds])
 
   const textContent = useMemo(() => {
-    if (!roulette) return ''
-    return roulette.items.map((item) => item.label).join('\n')
-  }, [roulette])
+    if (!currentDice) return ''
+    return currentDice.items.map((item) => item.label).join('\n')
+  }, [currentDice])
 
   const totalWeight = useMemo(() => {
-    if (!roulette) return 0
-    return roulette.items.reduce((sum, item) => sum + item.weight, 0)
-  }, [roulette])
+    if (!currentDice) return 0
+    return currentDice.items.reduce((sum, item) => sum + item.weight, 0)
+  }, [currentDice])
 
   const getPercentage = useCallback(
     (weight: number) => {
@@ -55,34 +55,33 @@ export function PlayPage() {
 
   const handleTextChange = useCallback(
     (text: string) => {
-      if (!roulette) return
+      if (!currentDice) return
       const lines = text.split('\n')
       const newItems = lines.map((label, index) => {
-        const existingItem = roulette.items[index]
+        const existingItem = currentDice.items[index]
         if (existingItem) {
           return { ...existingItem, label }
         }
-        return createRouletteItem(label)
+        return createDiceItem(label)
       })
-      // Preserve weights for existing items, but allow any number of items (validation happens on updateItems)
-      editRoulette(roulette.id, {
+      editDice(currentDice.id, {
         items: newItems,
-        name: generateRouletteName(newItems),
+        name: generateDiceName(newItems),
       })
     },
-    [roulette, editRoulette]
+    [currentDice, editDice]
   )
 
   const handleResult = useCallback(
-    (item: RouletteItem) => {
-      if (roulette) {
-        addHistory(roulette.id, item)
+    (item: DiceItem) => {
+      if (currentDice) {
+        addHistory(currentDice.id, item)
         if (autoExclude) {
           setExcludedIds((prev) => new Set([...prev, item.id]))
         }
       }
     },
-    [roulette, addHistory, autoExclude]
+    [currentDice, addHistory, autoExclude]
   )
 
   const toggleExclude = useCallback((itemId: string) => {
@@ -102,86 +101,86 @@ export function PlayPage() {
   }, [])
 
   const updateItems = useCallback(
-    (newItems: RouletteItem[]) => {
-      if (!roulette) return
+    (newItems: DiceItem[]) => {
+      if (!currentDice) return
       const validItems = newItems.filter((item) => item.label.trim())
       if (validItems.length >= 2) {
-        editRoulette(roulette.id, {
+        editDice(currentDice.id, {
           items: newItems,
-          name: generateRouletteName(newItems),
+          name: generateDiceName(newItems),
         })
       }
     },
-    [roulette, editRoulette]
+    [currentDice, editDice]
   )
 
   const updateItem = useCallback(
-    (itemId: string, updates: Partial<RouletteItem>) => {
-      if (!roulette) return
-      const newItems = roulette.items.map((item) =>
+    (itemId: string, updates: Partial<DiceItem>) => {
+      if (!currentDice) return
+      const newItems = currentDice.items.map((item) =>
         item.id === itemId ? { ...item, ...updates } : item
       )
       updateItems(newItems)
     },
-    [roulette, updateItems]
+    [currentDice, updateItems]
   )
 
   const addItem = useCallback(() => {
-    if (!roulette) return
-    const newItems = [...roulette.items, createRouletteItem('')]
-    editRoulette(roulette.id, { items: newItems })
-  }, [roulette, editRoulette])
+    if (!currentDice) return
+    const newItems = [...currentDice.items, createDiceItem('')]
+    editDice(currentDice.id, { items: newItems })
+  }, [currentDice, editDice])
 
   const removeItem = useCallback(
     (itemId: string) => {
-      if (!roulette || roulette.items.length <= 2) return
-      const newItems = roulette.items.filter((item) => item.id !== itemId)
+      if (!currentDice || currentDice.items.length <= 2) return
+      const newItems = currentDice.items.filter((item) => item.id !== itemId)
       updateItems(newItems)
     },
-    [roulette, updateItems]
+    [currentDice, updateItems]
   )
 
   const shuffleItems = useCallback(() => {
-    if (!roulette) return
-    const shuffled = [...roulette.items]
+    if (!currentDice) return
+    const shuffled = [...currentDice.items]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
-    editRoulette(roulette.id, { items: shuffled })
-  }, [roulette, editRoulette])
+    editDice(currentDice.id, { items: shuffled })
+  }, [currentDice, editDice])
 
   const resetWeights = useCallback(() => {
-    if (!roulette) return
-    const newItems = roulette.items.map((item) => ({ ...item, weight: 1 }))
-    editRoulette(roulette.id, { items: newItems })
-  }, [roulette, editRoulette])
+    if (!currentDice) return
+    const newItems = currentDice.items.map((item) => ({ ...item, weight: 1 }))
+    editDice(currentDice.id, { items: newItems })
+  }, [currentDice, editDice])
 
   const removeEmptyItems = useCallback(() => {
-    if (!roulette) return
-    const nonEmpty = roulette.items.filter((item) => item.label.trim())
+    if (!currentDice) return
+    const nonEmpty = currentDice.items.filter((item) => item.label.trim())
     if (nonEmpty.length >= 2) {
-      editRoulette(roulette.id, {
+      editDice(currentDice.id, {
         items: nonEmpty,
-        name: generateRouletteName(nonEmpty),
+        name: generateDiceName(nonEmpty),
       })
     }
-  }, [roulette, editRoulette])
+  }, [currentDice, editDice])
 
   if (!isLoaded) {
     return <div className="loading">読み込み中...</div>
   }
 
-  if (!roulette) {
+  if (!currentDice) {
     return <Navigate to="/" replace />
   }
 
-  const history = roulette.history || []
+  const history = currentDice.history || []
 
   return (
     <div className="play-page">
       <header className="page-header">
-        <h1>{roulette.name}</h1>
+        <h1>{currentDice.name}</h1>
         <div className="header-actions">
           <div className="view-toggle">
             <button
@@ -245,7 +244,7 @@ export function PlayPage() {
         </div>
       </header>
       <main className={showItemList ? 'with-sidebar' : ''}>
-        <div className="roulette-area">
+        <div className="dice-area">
           {viewMode === 'wheel' ? (
             <RouletteWheel items={activeItems} onResult={handleResult} triggerSpin={spinTrigger} />
           ) : (
@@ -254,9 +253,9 @@ export function PlayPage() {
         </div>
         {showItemList && (
           <aside className="item-list-panel">
-            <h3>項目一覧 ({roulette.items.length})</h3>
+            <h3>項目一覧 ({currentDice.items.length})</h3>
             <ul className="item-list">
-              {roulette.items.map((item, index) => (
+              {currentDice.items.map((item, index) => (
                 <li
                   key={item.id}
                   className={excludedIds.has(item.id) ? 'excluded' : ''}
@@ -279,7 +278,7 @@ export function PlayPage() {
             {history.length > 0 && (
               <button
                 className="clear-history"
-                onClick={() => clearHistory(roulette.id)}
+                onClick={() => clearHistory(currentDice.id)}
               >
                 クリア
               </button>
@@ -317,7 +316,7 @@ export function PlayPage() {
                 className="bulk-button"
                 onClick={removeEmptyItems}
                 title="空の項目を削除"
-                disabled={roulette.items.filter((i) => !i.label.trim()).length === 0}
+                disabled={currentDice.items.filter((i) => !i.label.trim()).length === 0}
               >
                 🧹 空を削除
               </button>
@@ -339,7 +338,7 @@ export function PlayPage() {
           </div>
           <div className="editor-content">
             <div className={`items-list ${textEditMode ? 'hidden' : ''}`}>
-              {roulette.items.map((item, index) => (
+              {currentDice.items.map((item, index) => (
                 <div key={item.id} className={`item-row ${excludedIds.has(item.id) ? 'excluded' : ''}`}>
                   <button
                     className={`exclude-item-button ${excludedIds.has(item.id) ? 'excluded' : ''}`}
@@ -371,7 +370,7 @@ export function PlayPage() {
                   <button
                     className="remove-button"
                     onClick={() => removeItem(item.id)}
-                    disabled={roulette.items.length <= 2}
+                    disabled={currentDice.items.length <= 2}
                   >
                     ×
                   </button>
