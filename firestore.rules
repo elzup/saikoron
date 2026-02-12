@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/dice/{diceId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && isValidDice(request.resource.data);
+
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+
+  function isValidDice(data) {
+    return data.keys().hasAll(['id', 'name', 'items', 'history', 'createdAt', 'updatedAt'])
+      && data.id is string
+      && data.name is string
+      && data.name.size() > 0
+      && data.name.size() <= 200
+      && data.items is list
+      && data.items.size() <= 500
+      && data.history is list
+      && data.history.size() <= 10000
+      && data.createdAt is number
+      && data.updatedAt is number;
+  }
+}

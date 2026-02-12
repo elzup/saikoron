@@ -17,10 +17,12 @@
     "tauri:build": "tauri build"
   },
   "dependencies": {
+    "firebase": "^12.9.0",
     "nanoid": "^5.1.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.11.0"
+    "react-router-dom": "^7.11.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.9.6",
