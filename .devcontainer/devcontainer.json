@@ -1,0 +1,16 @@
+{
+  "name": "saikoron",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "oxc.oxc-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "ni",
+  "forwardPorts": [5173]
+}
