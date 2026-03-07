@@ -2,19 +2,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   position: relative;
 }
 
 .roulette-pointer {
   width: 0;
   height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-top: 30px solid #1f2937;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 28px solid var(--color-text);
   position: absolute;
   top: 0;
   z-index: 10;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 .roulette-wheel {
@@ -25,30 +26,35 @@
 }
 
 .spin-button {
-  padding: 0.75rem 2rem;
-  font-size: 1.125rem;
-  font-weight: bold;
-  background: #4f46e5;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px var(--color-primary-shadow);
 }
 
 .spin-button:hover:not(:disabled) {
-  background: #4338ca;
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--color-primary-shadow);
 }
 
 .spin-button:disabled {
-  background: #9ca3af;
+  background: var(--color-text-placeholder);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .result {
-  padding: 1rem;
-  background: #fef3c7;
-  border-radius: 0.5rem;
-  font-size: 1.25rem;
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-warning-light);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
   text-align: center;
 }

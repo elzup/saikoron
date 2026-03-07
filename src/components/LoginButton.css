@@ -1,13 +1,13 @@
 .login-button-area {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
 }
 
 .user-name {
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -15,25 +15,26 @@
 
 .login-button,
 .logout-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: white;
-  color: #374151;
-  font-size: 0.875rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
 .login-button:hover,
 .logout-button:hover {
-  background: #f3f4f6;
+  background: var(--color-border-light);
+  border-color: var(--color-input-border);
 }
 
 .logout-button {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  color: #6b7280;
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
