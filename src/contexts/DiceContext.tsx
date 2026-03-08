@@ -7,7 +7,7 @@ import {
   useRef,
   type ReactNode,
 } from 'react'
-import type { Dice, DiceItem } from '../types'
+import type { Dice, DiceItem, ModeId } from '../types'
 import { loadDice, saveDice, clearDice } from '../lib/storage'
 import {
   createDice,
@@ -36,6 +36,7 @@ interface DiceContextValue {
   getDice: (id: string) => Dice | undefined
   addHistory: (id: string, item: DiceItem) => void
   clearHistory: (id: string) => void
+  setLastMode: (id: string, mode: ModeId) => void
 }
 
 const DiceContext = createContext<DiceContextValue | null>(null)
@@ -200,6 +201,23 @@ export function DiceProvider({ children }: { children: ReactNode }) {
     [user]
   )
 
+  const setLastMode = useCallback(
+    (id: string, mode: ModeId) => {
+      setDice((prev) =>
+        prev.map((r) => {
+          if (r.id !== id) return r
+          if (r.lastMode === mode) return r
+          const updated = { ...r, lastMode: mode, updatedAt: Date.now() }
+          if (user) {
+            saveDiceToFirestore(user.uid, updated)
+          }
+          return updated
+        })
+      )
+    },
+    [user]
+  )
+
   return (
     <DiceContext.Provider
       value={{
@@ -212,6 +230,7 @@ export function DiceProvider({ children }: { children: ReactNode }) {
         getDice,
         addHistory,
         clearHistory,
+        setLastMode,
       }}
     >
       {children}

@@ -24,12 +24,12 @@ export function DiceList({ dice, onDelete, onDuplicate }: Props) {
     <ul className="dice-list">
       {dice.map((d) => (
         <li key={d.id} className="dice-item">
-          <Link to={`/play/${d.id}`} className="dice-link">
+          <Link to={`/dice/${d.id}/${d.lastMode ?? 'slot'}`} className="dice-link">
             <span className="dice-name">{d.name}</span>
             <span className="dice-count">{d.items.length}項目</span>
           </Link>
           <div className="dice-actions">
-            <Link to={`/edit/${d.id}`} className="action-button edit">
+            <Link to={`/dice/${d.id}`} className="action-button edit">
               編集
             </Link>
             <button

@@ -54,13 +54,14 @@ export function subscribeToDice(
 ): Unsubscribe {
   const q = query(diceCollection(uid))
   return onSnapshot(q, (snapshot) => {
-    const diceList = snapshot.docs.map(
-      (doc) =>
-        ({
-          ...doc.data(),
-          storageState: 'cloud' as const,
-        }) as Dice
-    )
+    const diceList = snapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        ...data,
+        lastMode: data.lastMode ?? 'slot',
+        storageState: 'cloud' as const,
+      } as Dice
+    })
     onUpdate(diceList)
   })
 }
@@ -68,13 +69,14 @@ export function subscribeToDice(
 export async function fetchCloudDice(uid: string): Promise<Dice[]> {
   const q = query(diceCollection(uid))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(
-    (doc) =>
-      ({
-        ...doc.data(),
-        storageState: 'cloud' as const,
-      }) as Dice
-  )
+  return snapshot.docs.map((doc) => {
+    const data = doc.data()
+    return {
+      ...data,
+      lastMode: data.lastMode ?? 'slot',
+      storageState: 'cloud' as const,
+    } as Dice
+  })
 }
 
 export async function saveMultipleDice(

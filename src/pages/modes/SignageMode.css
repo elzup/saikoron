@@ -1,0 +1,105 @@
+.signage-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+}
+
+.signage-display {
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: center;
+  padding: var(--space-8);
+  animation: signageFadeIn 0.5s ease;
+  max-width: 90vw;
+  word-break: break-word;
+}
+
+@keyframes signageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.signage-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.signage-status {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.signage-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+}
+
+.signage-multi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: center;
+}
+
+.signage-multi span {
+  font-size: clamp(2rem, 6vw, 5rem);
+}
+
+/* Settings */
+.signage-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.signage-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signage-setting-row label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.signage-setting-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.signage-setting-input {
+  width: 4rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: var(--font-size-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.signage-setting-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+}

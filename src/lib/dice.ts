@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { Dice, DiceItem, ResultLog } from '../types'
+import type { Dice, DiceItem, ModeId, ResultLog } from '../types'
 
 export function generateDiceName(items: DiceItem[]): string {
   const labels = items
@@ -21,6 +21,7 @@ export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
       weight: item.weight ?? 1,
     })),
     history: [],
+    lastMode: 'slot',
     createdAt: now,
     updatedAt: now,
     storageState: 'local',
@@ -63,6 +64,7 @@ export function duplicateDice(dice: Dice): Dice {
       id: nanoid(),
     })),
     history: [],
+    lastMode: dice.lastMode,
     createdAt: now,
     updatedAt: now,
     storageState: dice.storageState,

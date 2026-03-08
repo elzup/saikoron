@@ -1,206 +1,197 @@
-# ランダムツール抽象化仕様書
+# ランダムツール仕様書
 
 ## 概要
 
-サイコロ/ルーレット/抽選などのランダム選択ツールを統一的に扱うための型システム。
+ランダム選択ツールを「データ (Dice)」と「表示モード (Mode)」に分離して管理する。
 
-## コア概念
+- **Dice** — 抽選対象の項目リスト。作成・編集・削除・複製ができる
+- **Mode** — Dice の表示・抽選方法。Dice の属性（項目数など）によって利用可能な Mode が決まる
 
-### 1. ソースタイプ (Source Type)
-候補の生成方法を定義する。
+## データモデル
 
-| タイプ | 説明 | 例 |
-|--------|------|-----|
-| `list` | 明示的なリスト | ["寿司", "ラーメン", "カレー"] |
-| `range` | 数値範囲 | 1〜100, 0.0〜1.0 |
+### Dice
 
-#### リストソース (ListSource)
-```typescript
-interface ListSource {
-  type: 'list'
-  items: {
-    id: string
-    label: string
-    weight: number  // 重み（確率調整）
-  }[]
-}
-```
-
-#### 範囲ソース (RangeSource)
-```typescript
-interface RangeSource {
-  type: 'range'
-  min: number
-  max: number
-  step: number      // 刻み (1=整数, 0.1=小数1桁)
-  isInteger: boolean
-}
-```
-
-### 2. 描画タイプ (Drawing Type)
-結果の視覚化方法を定義する。
-
-| タイプ | 説明 | 適用条件 |
-|--------|------|----------|
-| `wheel` | ルーレットホイール | 候補数 ≤ 20 |
-| `slot` | スロットマシン風 | 候補数 ≤ 50 |
-| `simple` | シンプル表示 | 制限なし |
-| `cards` | カード風 | 候補数 ≤ 100 |
-
-### 3. 引き方 (Draw Mode)
-選択方法を定義する。
+1組の抽選リスト。項目・重み・履歴を持つ。
 
 ```typescript
-interface DrawMode {
-  count: number           // 一度に引く数
-  excludeAfterDraw: boolean  // 引いた後に除外
-  allowDuplicates: boolean   // 重複を許可（count > 1の場合）
-}
-```
+type ModeId = 'wheel' | 'slot' | 'sample' | 'signage'
 
-## 互換性マトリクス
-
-### ソースタイプ × 描画タイプ
-
-| ソース | wheel | slot | simple | cards |
-|--------|-------|------|--------|-------|
-| list (≤20) | ✅ | ✅ | ✅ | ✅ |
-| list (≤50) | ⚠️ | ✅ | ✅ | ✅ |
-| list (>50) | ❌ | ⚠️ | ✅ | ✅ |
-| range (小) | ⚠️ | ✅ | ✅ | ❌ |
-| range (大) | ❌ | ❌ | ✅ | ❌ |
-
-- ✅ 推奨
-- ⚠️ 可能だが非推奨
-- ❌ 非対応
-
-### 候補数の閾値
-
-```typescript
-const THRESHOLDS = {
-  WHEEL_MAX: 20,      // ホイール表示の最大候補数
-  SLOT_MAX: 50,       // スロット表示の最大候補数
-  CARDS_MAX: 100,     // カード表示の最大候補数
-  LARGE_RANGE: 1000,  // 「大きい範囲」の閾値
-}
-```
-
-## 統合型定義
-
-```typescript
-interface RandomTool {
+interface Dice {
   id: string
   name: string
-  source: ListSource | RangeSource
-
-  // 描画設定
-  compatibleDrawings: DrawingType[]  // 利用可能な描画タイプ
-  currentDrawing: DrawingType        // 現在の描画タイプ
-
-  // 引き方設定
-  drawMode: DrawMode
-
-  // 除外中の項目（リストソースの場合のみ）
-  excludedIds?: string[]
-
-  // 履歴
+  items: DiceItem[]
   history: ResultLog[]
-
-  // メタデータ
+  lastMode: ModeId          // 最後に使った Mode（デフォルト: 'slot'）
   createdAt: number
   updatedAt: number
+  storageState: 'local' | 'cloud'
+}
+
+interface DiceItem {
+  id: string
+  label: string
+  weight: number
+}
+
+interface ResultLog {
+  id: string
+  itemId: string
+  label: string
+  timestamp: number
 }
 ```
 
-## ユースケース
+### ストレージ
 
-### 1. 食事ルーレット（従来のルーレット）
+| 状態 | 保存先 | 切り替え |
+|------|--------|----------|
+| 未ログイン | localStorage | 自動 |
+| ログイン済 | Firestore `users/{uid}/dice/{diceId}` | 自動 |
+
+Firestore の named database (`VITE_FIRESTORE_DATABASE_ID`) で dev / prod を分離。
+
+## Mode
+
+1つの Dice データに対して複数の Mode を独立ページとして提供する。
+Dice の属性によって利用可能な Mode が自動的に決まる。
+
+### Mode 一覧
+
+| Mode | パス | 説明 | 項目数制限 |
+|------|------|------|------------|
+| Wheel | `/dice/:id/wheel` | ルーレットホイール。円形ホイールを回転させて抽選 | **100 以下** |
+| Slot | `/dice/:id/slot` | スロットマシン。スロット演出で1つ抽選 | なし |
+| Sample | `/dice/:id/sample` | おみくじ。N個を一度に抽出（重複あり/なし選択可） | なし |
+| Signage | `/dice/:id/signage` | サイネージ。一定間隔で自動的に項目を切り替え表示 | なし |
+
+### Mode の有効条件
+
+DicePage の Mode 選択画面では、条件を満たさない Mode はグレーアウトして無効にする。
+
 ```typescript
-{
-  source: { type: 'list', items: [...] },
-  compatibleDrawings: ['wheel', 'slot', 'simple'],
-  currentDrawing: 'wheel',
-  drawMode: { count: 1, excludeAfterDraw: false, allowDuplicates: false }
+function getAvailableModes(dice: Dice): ModeConfig[] {
+  return [
+    { id: 'wheel',   enabled: dice.items.length <= 100 },
+    { id: 'slot',    enabled: true },
+    { id: 'sample',  enabled: true },
+    { id: 'signage', enabled: true },
+  ]
 }
 ```
 
-### 2. サイコロ（1〜6）
-```typescript
-{
-  source: { type: 'range', min: 1, max: 6, step: 1, isInteger: true },
-  compatibleDrawings: ['wheel', 'slot', 'simple'],
-  currentDrawing: 'slot',
-  drawMode: { count: 1, excludeAfterDraw: false, allowDuplicates: true }
-}
+### 各 Mode の仕様
+
+#### Wheel（ルーレット）
+- 円形ホイールに項目を扇形で配置
+- クリックまたはボタンで回転、減速して停止
+- 重みに応じて扇形のサイズが変わる
+- 結果は履歴に記録
+
+#### Slot（スロット）
+- スロットマシン風の3行表示（前・現在・次）
+- ボタンで開始、高速回転 → 減速 → 停止
+- 結果は履歴に記録
+
+#### Sample（おみくじ）
+- 設定: 抽出数（N）、重複あり/なし
+- ボタンで N 個を一度に抽選
+- 結果をリスト表示
+- 履歴には記録しない（一括抽出のため）
+
+#### Signage（サイネージ）
+- 一定間隔（デフォルト 5 秒）でランダムに項目を切り替え表示
+- フェードインアニメーション
+- クリックで一時停止/再開
+- 全画面表示に適したレイアウト
+- 履歴には記録しない
+
+### lastMode（最後に使った Mode）
+
+- Dice ごとに `lastMode` を記録する
+- サイドバーで Dice をクリックすると `/dice/:id/:lastMode` に直接遷移する
+- Mode ページ遷移時に `lastMode` を自動更新する
+- デフォルト値: `'slot'`
+- `lastMode` が有効条件を満たさない場合（例: 項目数 > 100 で wheel）、最初の有効な Mode にフォールバック
+
+### 共通構造
+
+全 Mode は `ModeLayout` を共有する:
+- ヘッダー: Dice 名 + Mode 切り替え（他の Mode へのリンク）
+- メイン: Mode 固有のコンテンツ
+- Mode 切り替え時に `lastMode` を更新
+
+## ページ構成
+
+### ルーティング
+
+```
+/                      → HomePage      Dice 一覧
+/new                   → NewPage       Dice 新規作成
+/dice/:id              → DicePage      Dice 編集・管理
+/dice/:id/wheel        → WheelMode
+/dice/:id/slot         → SlotMode
+/dice/:id/sample       → SampleMode
+/dice/:id/signage      → SignageMode
+/random-number         → RandomNumberPage  ランダム数字ツール
+/list-draw             → ListDrawPage      リスト抽選ツール
 ```
 
-### 3. 宝くじ番号（1〜45から6つ）
-```typescript
-{
-  source: { type: 'range', min: 1, max: 45, step: 1, isInteger: true },
-  compatibleDrawings: ['slot', 'simple'],
-  currentDrawing: 'simple',
-  drawMode: { count: 6, excludeAfterDraw: true, allowDuplicates: false }
-}
+### ナビゲーションの流れ
+
+```
+サイドバー Dice クリック → /dice/:id/:lastMode（最後に使った Mode）
+Mode ヘッダーで切り替え → /dice/:id/:newMode（lastMode 更新）
+Mode ヘッダーで編集     → /dice/:id（DicePage）
+新規作成               → /new（NewPage）
 ```
 
-### 4. 乱数生成（0.0〜1.0）
-```typescript
-{
-  source: { type: 'range', min: 0, max: 1, step: 0.01, isInteger: false },
-  compatibleDrawings: ['simple'],
-  currentDrawing: 'simple',
-  drawMode: { count: 1, excludeAfterDraw: false, allowDuplicates: true }
-}
-```
+### DicePage (`/dice/:id`)
 
-### 5. 席替え（クラス30人）
-```typescript
-{
-  source: { type: 'list', items: [生徒30人] },
-  compatibleDrawings: ['slot', 'simple', 'cards'],
-  currentDrawing: 'cards',
-  drawMode: { count: 30, excludeAfterDraw: true, allowDuplicates: false }
-}
-```
+Dice の管理・編集ページ。以下のセクションで構成される:
 
-## 実装計画
+1. **項目一覧** — 項目名・重み・確率のプレビュー
+2. **履歴** — 直近 20 件の抽選結果
+3. **編集** — リスト編集 / テキスト一括編集の切り替え可能
 
-### Phase 1: 型定義 ✅
-- [x] 基本型の定義 (`src/types/randomTool.ts`)
-- [x] ユーティリティ型関数
-
-### Phase 2: ロジック ✅
-- [x] 互換性判定関数 (`getCompatibleDrawings`)
-- [x] 抽選実行関数 (`executeRandomTool`)
-- [x] ソースから候補生成 (`drawFromList`, `drawFromRange`)
-- [x] 複数抽選 (`drawMultipleFromList`, `drawMultipleFromRange`)
-- [x] 既存Rouletteとの変換 (`rouletteToRandomTool`, `randomToolToRoulette`)
-
-### Phase 3: UI
-- [ ] 描画コンポーネント抽象化
-- [ ] ソース設定UI
-- [ ] DrawMode設定UI
-
-### Phase 4: 移行
-- [ ] 既存Rouletteの移行
-- [ ] RandomNumberPageの統合
+※ Mode 選択はここではなく、各 Mode ページのヘッダーで切り替える。
+サイドバーから Dice をクリックすると `lastMode` の Mode ページに直接遷移する。
 
 ## ファイル構成
 
 ```
 src/
 ├── types/
-│   ├── index.ts          # 既存の型（Roulette等）
-│   └── randomTool.ts     # 新しい抽象型
+│   └── index.ts              # Dice, DiceItem, ResultLog
 ├── lib/
-│   ├── roulette.ts       # 既存のルーレット操作
-│   ├── randomTool.ts     # 新しい抽象操作
-│   └── randomTool.test.ts
-└── docs/
-    └── random-tool-spec.md  # この文書
+│   ├── dice.ts               # 抽選ロジック、ユーティリティ
+│   └── firebase/
+│       ├── config.ts          # Firebase 初期化
+│       ├── auth.ts            # Google 認証
+│       ├── firestore.ts       # Firestore CRUD
+│       └── sync.ts            # ローカル ↔ クラウド同期
+├── contexts/
+│   ├── AuthContext.tsx         # 認証状態管理
+│   └── DiceContext.tsx         # Dice 状態管理
+├── hooks/
+│   ├── useDice.ts             # Dice 操作フック
+│   └── useAutoSpin.ts         # 自動スピンフック
+├── components/
+│   ├── Layout.tsx             # サイドバー + メインレイアウト
+│   ├── RouletteWheel.tsx      # ホイールコンポーネント
+│   ├── SlotRoulette.tsx       # スロットコンポーネント
+│   ├── DiceList.tsx           # Dice 一覧コンポーネント
+│   └── LoginButton.tsx        # ログインボタン
+├── pages/
+│   ├── HomePage.tsx           # Dice 一覧ページ
+│   ├── NewPage.tsx            # Dice 新規作成
+│   ├── DicePage.tsx           # Dice 管理 + Mode 選択
+│   ├── RandomNumberPage.tsx   # ランダム数字ツール
+│   ├── ListDrawPage.tsx       # リスト抽選ツール
+│   └── modes/
+│       ├── ModeLayout.tsx     # Mode 共通レイアウト
+│       ├── WheelMode.tsx
+│       ├── SlotMode.tsx
+│       ├── SampleMode.tsx
+│       └── SignageMode.tsx
+└── index.css                  # テーマ変数定義
 ```
-
-## 変更履歴
-
-- 2025-01-18: Phase 1, 2 完了 - 型定義とロジック実装

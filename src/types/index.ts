@@ -1,3 +1,5 @@
+export type ModeId = 'wheel' | 'slot' | 'sample' | 'signage'
+
 export interface DiceItem {
   id: string
   label: string
@@ -18,6 +20,7 @@ export interface Dice {
   name: string
   items: DiceItem[]
   history: ResultLog[]
+  lastMode: ModeId
   createdAt: number
   updatedAt: number
   storageState: StorageState

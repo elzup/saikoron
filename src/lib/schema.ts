@@ -13,11 +13,14 @@ export const resultLogSchema = z.object({
   timestamp: z.number(),
 })
 
+const modeIdSchema = z.enum(['wheel', 'slot', 'sample', 'signage'])
+
 export const diceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(200),
   items: z.array(diceItemSchema).max(500),
   history: z.array(resultLogSchema).max(10000),
+  lastMode: modeIdSchema.default('slot'),
   createdAt: z.number(),
   updatedAt: z.number(),
 })

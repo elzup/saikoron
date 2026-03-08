@@ -94,16 +94,16 @@
   margin: var(--space-2) var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--color-primary);
-  color: white;
+  color: #0d0d0d;
   border-radius: var(--radius-md);
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
   font-size: var(--font-size-sm);
-  transition: background var(--transition-fast);
+  transition: filter var(--transition-fast);
 }
 
 .nav-item.new-item:hover {
-  background: var(--color-primary-hover);
+  filter: brightness(1.1);
 }
 
 .nav-item.tool-item {
@@ -147,7 +147,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
   z-index: 999;
 }

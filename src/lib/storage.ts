@@ -6,7 +6,10 @@ export function loadDice(): Dice[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY)
     if (!data) return []
-    return JSON.parse(data)
+    return JSON.parse(data).map((d: Dice) => ({
+      ...d,
+      lastMode: d.lastMode ?? 'slot',
+    }))
   } catch {
     return []
   }
