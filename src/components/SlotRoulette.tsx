@@ -18,13 +18,13 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<DiceItem | null>(null)
   const [displayIndex, setDisplayIndex] = useState(0)
-  const intervalRef = useRef<number | null>(null)
+  const timeoutRef = useRef<number | null>(null)
   const triggerRef = useRef(triggerSpin ?? 0)
 
   useEffect(() => {
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
     }
   }, [])
@@ -41,38 +41,56 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
       return
     }
 
-    let speed = 50
-    let iterations = 0
-    const maxIterations = 30 + Math.floor(Math.random() * 20)
     const winnerIndex = items.findIndex((item) => item.id === winner.id)
+    // Total steps: at least 2 full cycles + approach to winner
+    const minCycles = 2
+    const totalSteps = minCycles * items.length + Math.floor(Math.random() * items.length)
 
-    const animate = () => {
-      iterations++
-      setDisplayIndex((prev) => (prev + 1) % items.length)
+    let step = 0
+    let currentIdx = displayIndex
 
-      if (iterations >= maxIterations - 5) {
-        speed += 50
-      }
+    const tick = () => {
+      step++
+      currentIdx = (currentIdx + 1) % items.length
 
-      if (iterations >= maxIterations) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-          intervalRef.current = null
-        }
+      // On the last few steps, ensure we land on the winner
+      const remaining = totalSteps - step
+      if (remaining <= 0) {
+        // Final: snap to winner
         setDisplayIndex(winnerIndex)
         setIsSpinning(false)
         setResult(winner)
         onResult?.(winner)
-      } else {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-        }
-        intervalRef.current = window.setInterval(animate, speed)
+        return
       }
+
+      // Adjust current index to land on winner at the end
+      if (remaining <= items.length) {
+        // In the final approach, step toward the winner
+        const stepsToWinner = (winnerIndex - currentIdx + items.length) % items.length
+        if (stepsToWinner === remaining) {
+          // We're on track
+        }
+      }
+
+      setDisplayIndex(currentIdx)
+
+      // Easing: start fast, gradually slow down
+      const progress = step / totalSteps
+      // Exponential ease-out: speed goes from 40ms to 350ms
+      const delay = 40 + 310 * (progress * progress * progress)
+
+      timeoutRef.current = window.setTimeout(tick, delay)
     }
 
-    intervalRef.current = window.setInterval(animate, speed)
-  }, [items, isSpinning, onResult])
+    // Calculate the starting index so we land exactly on the winner
+    // Work backwards from winnerIndex
+    const startIdx = (winnerIndex - totalSteps % items.length + items.length * 100) % items.length
+    currentIdx = startIdx
+
+    // First tick immediately
+    timeoutRef.current = window.setTimeout(tick, 40)
+  }, [items, isSpinning, onResult, displayIndex])
 
   useEffect(() => {
     if (triggerSpin !== undefined && triggerSpin !== triggerRef.current) {
