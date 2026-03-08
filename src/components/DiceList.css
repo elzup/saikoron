@@ -55,6 +55,11 @@
   color: inherit;
 }
 
+.dice-mode-emoji {
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}
+
 .dice-name {
   font-weight: 600;
   color: var(--color-text);

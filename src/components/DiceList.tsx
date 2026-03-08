@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom'
-import type { Dice } from '../types'
+import type { Dice, ModeId } from '../types'
 import './DiceList.css'
+
+const MODE_EMOJI: Record<ModeId, string> = {
+  wheel: '🎡',
+  slot: '🎰',
+  sample: '🎋',
+  signage: '📺',
+}
 
 interface Props {
   dice: Dice[]
@@ -25,6 +32,7 @@ export function DiceList({ dice, onDelete, onDuplicate }: Props) {
       {dice.map((d) => (
         <li key={d.id} className="dice-item">
           <Link to={`/dice/${d.id}/${d.lastMode ?? 'slot'}`} className="dice-link">
+            <span className="dice-mode-emoji">{MODE_EMOJI[d.lastMode ?? 'slot']}</span>
             <span className="dice-name">{d.name}</span>
             <span className="dice-count">{d.items.length}項目</span>
           </Link>

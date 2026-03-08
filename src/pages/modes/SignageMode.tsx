@@ -1,27 +1,46 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { ModeLayout } from './ModeLayout'
 import { spinDice } from '../../lib/dice'
-import type { DiceItem } from '../../types'
+import { useDice } from '../../hooks/useDice'
+import type { Dice, DiceItem } from '../../types'
 import './SignageMode.css'
 
 export function SignageMode() {
+  const { addHistory } = useDice()
   const [current, setCurrent] = useState<DiceItem | null>(null)
   const [isPaused, setIsPaused] = useState(false)
   const [fadeKey, setFadeKey] = useState(0)
   const [interval, setInterval_] = useState(5)
   const [displayCount, setDisplayCount] = useState(1)
+  const [loop, setLoop] = useState(false)
   const [displayItems, setDisplayItems] = useState<DiceItem[]>([])
   const itemsRef = useRef<DiceItem[]>([])
+  const diceIdRef = useRef<string>('')
+  const shownIdsRef = useRef<Set<string>>(new Set())
 
   const next = useCallback(() => {
-    const items = itemsRef.current
+    let items = itemsRef.current
     if (items.length === 0) return
+
+    // Loop mode: filter out already shown items
+    if (!loop) {
+      const remaining = items.filter((item) => !shownIdsRef.current.has(item.id))
+      if (remaining.length === 0) {
+        // All items shown, stop
+        setIsPaused(true)
+        return
+      }
+      items = remaining
+    }
+
     if (displayCount <= 1) {
       const picked = spinDice(items)
       if (picked) {
         setCurrent(picked)
         setDisplayItems([])
         setFadeKey((k) => k + 1)
+        shownIdsRef.current.add(picked.id)
+        addHistory(diceIdRef.current, picked)
       }
     } else {
       const picked: DiceItem[] = []
@@ -35,8 +54,12 @@ export function SignageMode() {
       setCurrent(null)
       setDisplayItems(picked)
       setFadeKey((k) => k + 1)
+      for (const item of picked) {
+        shownIdsRef.current.add(item.id)
+        addHistory(diceIdRef.current, item)
+      }
     }
-  }, [displayCount])
+  }, [displayCount, loop, addHistory])
 
   return (
     <ModeLayout
@@ -71,11 +94,23 @@ export function SignageMode() {
               <span>/ {dice.items.length}</span>
             </div>
           </div>
+          <div className="signage-setting-row">
+            <label>ループ</label>
+            <div className="signage-setting-value">
+              <button
+                className={`signage-toggle-btn ${loop ? 'active' : ''}`}
+                onClick={() => setLoop(!loop)}
+              >
+                {loop ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     >
       {(dice) => {
         itemsRef.current = dice.items
+        diceIdRef.current = dice.id
 
         useEffect(() => {
           if (dice.items.length > 0 && !current && displayItems.length === 0) {
@@ -104,7 +139,9 @@ export function SignageMode() {
             </div>
             <div className="signage-footer">
               <span className="signage-status">
-                {isPaused ? '一時停止中' : `${interval}秒ごとに切替`}
+                {isPaused
+                  ? (loop ? '一時停止中' : `完了 (${shownIdsRef.current.size}/${dice.items.length})`)
+                  : `${interval}秒ごとに切替`}
               </span>
               <span className="signage-hint">
                 {isPaused ? 'クリックで再開' : 'クリックで一時停止'}
