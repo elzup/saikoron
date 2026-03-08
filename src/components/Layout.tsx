@@ -42,18 +42,18 @@ export function Layout({ children }: Props) {
               + 新規ダイス
             </Link>
             <Link
-              to="/random-number"
-              className={`nav-item tool-item ${location.pathname === '/random-number' ? 'active' : ''}`}
+              to="/new?mode=range"
+              className={`nav-item tool-item ${location.search.includes('mode=range') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              🎲 ランダム数字
+              🎲 範囲で作成
             </Link>
             <Link
-              to="/list-draw"
-              className={`nav-item tool-item ${location.pathname === '/list-draw' ? 'active' : ''}`}
+              to="/new?mode=text"
+              className={`nav-item tool-item ${location.search.includes('mode=text') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              🎯 リスト抽選機
+              🎯 テキストで作成
             </Link>
           </div>
 
@@ -65,8 +65,8 @@ export function Layout({ children }: Props) {
             {dice.map((d) => (
               <Link
                 key={d.id}
-                to={`/play/${d.id}`}
-                className={`nav-item ${location.pathname === `/play/${d.id}` ? 'active' : ''}`}
+                to={`/dice/${d.id}/${d.lastMode ?? 'slot'}`}
+                className={`nav-item ${location.pathname.startsWith(`/dice/${d.id}`) ? 'active' : ''}`}
                 onClick={() => setIsOpen(false)}
               >
                 {d.name}

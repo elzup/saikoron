@@ -69,6 +69,42 @@
   text-align: right;
 }
 
+.list-draw-page .tool-description {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.list-draw-page .settings-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+}
+
+.list-draw-page .generate-button {
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-primary);
+  color: #0d0d0d;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.list-draw-page .generate-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.list-draw-page .generate-button:disabled {
+  background: var(--color-text-placeholder);
+  cursor: not-allowed;
+}
+
 @media (min-width: 768px) {
   .list-draw-page .page-header {
     padding-left: var(--space-4);
