@@ -17,6 +17,7 @@ export function NewPage() {
     ? (searchParams.get('mode') as CreateMode)
     : 'list'
   const [mode, setMode] = useState<CreateMode>(initialMode)
+  const [name, setName] = useState('')
   const [items, setItems] = useState<DiceItem[]>([
     createDiceItem(''),
     createDiceItem(''),
@@ -74,8 +75,8 @@ export function NewPage() {
   const handleCreate = () => {
     const createItems = getItemsForCreate()
     if (createItems.length < 2) return
-    const name = generateDiceName(createItems)
-    const newDice = addDice(name, createItems)
+    const diceName = name.trim() || generateDiceName(createItems)
+    const newDice = addDice(diceName, createItems)
     navigate(`/dice/${newDice.id}/slot`)
   }
 
@@ -92,6 +93,16 @@ export function NewPage() {
         </button>
       </header>
       <main>
+        <div className="name-field">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="ダイス名（空欄で自動生成）"
+            className="name-input"
+          />
+        </div>
+
         <div className="create-mode-tabs">
           <button
             className={mode === 'list' ? 'active' : ''}

@@ -11,6 +11,8 @@ export function DicePage() {
   const { getDice, editDice, clearHistory, isLoaded } = useDice()
   const [isEditing, setIsEditing] = useState(false)
   const [textEditMode, setTextEditMode] = useState(false)
+  const [editingName, setEditingName] = useState(false)
+  const [nameValue, setNameValue] = useState('')
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -138,7 +140,37 @@ export function DicePage() {
     <div className="dice-page">
       <header className="page-header">
         <Link to={`/dice/${currentDice.id}/${currentDice.lastMode}`} className="back-link">←</Link>
-        <h1>{currentDice.name}</h1>
+        {editingName ? (
+          <input
+            className="name-edit-input"
+            type="text"
+            value={nameValue}
+            onChange={(e) => setNameValue(e.target.value)}
+            onBlur={() => {
+              const trimmed = nameValue.trim()
+              if (trimmed && trimmed !== currentDice.name) {
+                editDice(currentDice.id, { name: trimmed })
+              }
+              setEditingName(false)
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              if (e.key === 'Escape') setEditingName(false)
+            }}
+            autoFocus
+          />
+        ) : (
+          <h1
+            onClick={() => {
+              setNameValue(currentDice.name)
+              setEditingName(true)
+            }}
+            className="editable-name"
+            title="クリックで名前を編集"
+          >
+            {currentDice.name}
+          </h1>
+        )}
         <button
           className={`edit-toggle ${isEditing ? 'active' : ''}`}
           onClick={() => setIsEditing(!isEditing)}

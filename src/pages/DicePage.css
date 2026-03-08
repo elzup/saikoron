@@ -38,6 +38,34 @@
   text-overflow: ellipsis;
 }
 
+.dice-page .editable-name {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.dice-page .editable-name:hover {
+  border-bottom-color: var(--color-text-placeholder);
+}
+
+.dice-page .name-edit-input {
+  flex: 1;
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.15);
+  min-width: 0;
+}
+
+.dice-page .name-edit-input:focus {
+  outline: none;
+}
+
 .dice-page main {
   padding: var(--space-4);
   max-width: 560px;
