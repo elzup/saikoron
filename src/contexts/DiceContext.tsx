@@ -174,6 +174,7 @@ export function DiceProvider({ children }: { children: ReactNode }) {
           const updated = {
             ...r,
             history: [...(r.history || []), log],
+            updatedAt: Date.now(),
           }
           if (user) {
             saveDiceToFirestore(user.uid, updated)

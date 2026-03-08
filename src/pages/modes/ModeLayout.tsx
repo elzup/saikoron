@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useDice } from '../../hooks/useDice'
 import { formatRelativeTime } from '../../lib/time'
@@ -13,6 +13,7 @@ const MODES: { id: ModeId; name: string; maxItems?: number }[] = [
 ]
 
 const HISTORY_PAGE_SIZE = 20
+const GRID_MAX_ITEMS = 100
 
 export function isModeEnabled(modeId: ModeId, dice: Dice): boolean {
   const mode = MODES.find((m) => m.id === modeId)
@@ -56,6 +57,13 @@ export function ModeLayout({ children, modeId, settings }: Props) {
     setHistoryPage(0)
   }, [historyLen])
 
+  // Compute drawn item IDs from history
+  const drawnItemIds = useMemo(() => {
+    if (!dice) return new Set<string>()
+    const history = dice.history || []
+    return new Set(history.map((log) => log.itemId))
+  }, [dice?.history])
+
   if (!isLoaded) {
     return <div className="mode-loading">読み込み中...</div>
   }
@@ -77,9 +85,18 @@ export function ModeLayout({ children, modeId, settings }: Props) {
     (historyPage + 1) * HISTORY_PAGE_SIZE
   )
 
-  const totalWeight = dice.items.reduce((sum, item) => sum + item.weight, 0)
-  const getPercentage = (weight: number) =>
-    totalWeight === 0 ? 0 : (weight / totalWeight) * 100
+  const drawnItems = dice.items.filter((item) => drawnItemIds.has(item.id))
+  const undrawnItems = dice.items.filter((item) => !drawnItemIds.has(item.id))
+
+  const renderResetButton = () => (
+    <button
+      className="panel-clear-button"
+      onClick={() => clearHistory(dice.id)}
+      disabled={history.length === 0}
+    >
+      既出リセット
+    </button>
+  )
 
   return (
     <div className="mode-page">
@@ -114,7 +131,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
 
       {/* Collapsible panels */}
       <div className="mode-panels">
-        {/* Items grid */}
+        {/* Items grid - 既出/未出 */}
         <div className="mode-panel">
           <button
             className="panel-toggle"
@@ -125,18 +142,51 @@ export function ModeLayout({ children, modeId, settings }: Props) {
           </button>
           {showItems && (
             <div className="panel-content">
-              <div className="panel-items-grid">
-                {dice.items.map((item, index) => (
-                  <span
-                    key={item.id}
-                    className="panel-grid-cell"
-                    style={{ background: `hsl(${(index * 45) % 360}, 70%, 50%)` }}
-                    title={`${item.label || `項目${index + 1}`} (${getPercentage(item.weight).toFixed(1)}%)`}
-                  >
-                    {(item.label || `${index + 1}`).charAt(0)}
-                  </span>
-                ))}
+              <div className="panel-items-header">
+                {renderResetButton()}
               </div>
+
+              {/* 未出 */}
+              <div className="panel-items-section">
+                <span className="panel-items-label">未出 ({undrawnItems.length})</span>
+                <div className="panel-items-grid">
+                  {undrawnItems.slice(0, GRID_MAX_ITEMS).map((item, index) => (
+                    <span
+                      key={item.id}
+                      className="panel-grid-cell"
+                      style={{ background: `hsl(${(dice.items.indexOf(item) * 45) % 360}, 70%, 50%)` }}
+                      title={item.label || `項目${dice.items.indexOf(item) + 1}`}
+                    >
+                      {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}
+                    </span>
+                  ))}
+                  {undrawnItems.length > GRID_MAX_ITEMS && (
+                    <span className="panel-grid-more">+{undrawnItems.length - GRID_MAX_ITEMS}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* 既出 */}
+              {drawnItems.length > 0 && (
+                <div className="panel-items-section">
+                  <span className="panel-items-label">既出 ({drawnItems.length})</span>
+                  <div className="panel-items-grid">
+                    {drawnItems.slice(0, GRID_MAX_ITEMS).map((item) => (
+                      <span
+                        key={item.id}
+                        className="panel-grid-cell drawn"
+                        style={{ background: `hsl(${(dice.items.indexOf(item) * 45) % 360}, 30%, 30%)` }}
+                        title={item.label || `項目${dice.items.indexOf(item) + 1}`}
+                      >
+                        {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}
+                      </span>
+                    ))}
+                    {drawnItems.length > GRID_MAX_ITEMS && (
+                      <span className="panel-grid-more">+{drawnItems.length - GRID_MAX_ITEMS}</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -154,6 +204,9 @@ export function ModeLayout({ children, modeId, settings }: Props) {
             {showSettings && (
               <div className="panel-content">
                 {settings(dice)}
+                <div className="panel-settings-footer">
+                  {renderResetButton()}
+                </div>
               </div>
             )}
           </div>

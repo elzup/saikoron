@@ -159,7 +159,7 @@ export function DicePage() {
                 style={{ background: `hsl(${(index * 45) % 360}, 70%, 50%)` }}
                 title={`${item.label || `項目${index + 1}`} (${getPercentage(item.weight).toFixed(1)}%)`}
               >
-                {(item.label || `${index + 1}`).charAt(0)}
+                {(item.label || `${index + 1}`).slice(0, 3)}
               </span>
             ))}
           </div>
