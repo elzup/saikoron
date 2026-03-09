@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import type { DiceItem } from '../types'
 import { spinDice, calculateItemAngle } from '../lib/dice'
+import { ITEM_COLORS, WHEEL_ANIMATION } from '../lib/constants'
 import './RouletteWheel.css'
 
 interface Props {
@@ -9,16 +10,13 @@ interface Props {
   triggerSpin?: number
 }
 
-const COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899',
-]
-
 export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
   const [rotation, setRotation] = useState(0)
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<DiceItem | null>(null)
   const triggerRef = useRef(triggerSpin ?? 0)
+  const onResultRef = useRef(onResult)
+  onResultRef.current = onResult
 
   const spin = useCallback(() => {
     if (isSpinning || items.length === 0) return
@@ -36,8 +34,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
     const { startAngle, endAngle } = calculateItemAngle(items, winnerIndex)
     const midAngle = (startAngle + endAngle) / 2
 
-    // 5-8周回転 + 当たり位置で止まる
-    const spins = 5 + Math.random() * 3
+    const spins = WHEEL_ANIMATION.MIN_SPINS + Math.random() * WHEEL_ANIMATION.RANDOM_SPINS
     const targetRotation = spins * 360 + (360 - midAngle)
 
     setRotation((prev) => prev + targetRotation)
@@ -45,9 +42,9 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
     setTimeout(() => {
       setIsSpinning(false)
       setResult(winner)
-      onResult?.(winner)
-    }, 4000)
-  }, [items, isSpinning, onResult])
+      onResultRef.current?.(winner)
+    }, WHEEL_ANIMATION.DURATION_MS)
+  }, [items, isSpinning])
 
   useEffect(() => {
     if (triggerSpin !== undefined && triggerSpin !== triggerRef.current) {
@@ -64,7 +61,9 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
         viewBox="-110 -110 220 220"
         style={{
           transform: `rotate(${rotation}deg)`,
-          transition: isSpinning ? 'transform 4s cubic-bezier(0.2, 0.8, 0.3, 1)' : 'none',
+          transition: isSpinning
+            ? `transform ${WHEEL_ANIMATION.DURATION_MS}ms ${WHEEL_ANIMATION.EASING}`
+            : 'none',
         }}
         onClick={spin}
       >
@@ -88,7 +87,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
             <g key={item.id}>
               <path
                 d={`M 0 0 L ${x1} ${y1} A 100 100 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                fill={COLORS[index % COLORS.length]}
+                fill={ITEM_COLORS[index % ITEM_COLORS.length]}
                 stroke="#fff"
                 strokeWidth="2"
               />

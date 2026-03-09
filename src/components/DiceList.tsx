@@ -1,13 +1,7 @@
 import { Link } from 'react-router-dom'
-import type { Dice, ModeId } from '../types'
+import type { Dice } from '../types'
+import { MODE_EMOJI } from '../lib/constants'
 import './DiceList.css'
-
-const MODE_EMOJI: Record<ModeId, string> = {
-  wheel: '🎡',
-  slot: '🎰',
-  sample: '🎋',
-  signage: '📺',
-}
 
 interface Props {
   dice: Dice[]

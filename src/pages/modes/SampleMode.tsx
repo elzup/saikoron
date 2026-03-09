@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ModeLayout } from './ModeLayout'
+import { SAMPLE_DELAY_MS, SAMPLE_DUPLICATE_MULTIPLIER } from '../../lib/constants'
 import './SampleMode.css'
 
 export function SampleMode() {
@@ -12,7 +13,7 @@ export function SampleMode() {
     <ModeLayout
       modeId="sample"
       settings={(dice) => {
-        const maxCount = allowDuplicates ? dice.items.length * 3 : dice.items.length
+        const maxCount = allowDuplicates ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER : dice.items.length
         return (
           <div className="sample-settings">
             <div className="sample-row">
@@ -49,7 +50,7 @@ export function SampleMode() {
       }}
     >
       {(dice) => {
-        const maxCount = allowDuplicates ? dice.items.length * 3 : dice.items.length
+        const maxCount = allowDuplicates ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER : dice.items.length
         const isValid = count > 0 && count <= maxCount && dice.items.length > 0
 
         const draw = () => {
@@ -74,7 +75,7 @@ export function SampleMode() {
             }
             setResults(picked)
             setIsSpinning(false)
-          }, 500)
+          }, SAMPLE_DELAY_MS)
         }
 
         return (

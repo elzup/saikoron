@@ -3,6 +3,7 @@ import { useParams, Navigate, Link } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
 import { createDiceItem, generateDiceName } from '../lib/dice'
 import { formatRelativeTime } from '../lib/time'
+import { itemHslColor, HISTORY_PAGE_SIZE, RELATIVE_TIME_REFRESH_MS, MAX_WEIGHT } from '../lib/constants'
 import type { DiceItem } from '../types'
 import './DicePage.css'
 
@@ -16,7 +17,7 @@ export function DicePage() {
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 10_000)
+    const timer = setInterval(() => setNow(Date.now()), RELATIVE_TIME_REFRESH_MS)
     return () => clearInterval(timer)
   }, [])
 
@@ -188,7 +189,7 @@ export function DicePage() {
               <span
                 key={item.id}
                 className="grid-cell"
-                style={{ background: `hsl(${(index * 45) % 360}, 70%, 50%)` }}
+                style={{ background: itemHslColor(index) }}
                 title={`${item.label || `項目${index + 1}`} (${getPercentage(item.weight).toFixed(1)}%)`}
               >
                 {(item.label || `${index + 1}`).slice(0, 3)}
@@ -210,7 +211,7 @@ export function DicePage() {
               </button>
             </div>
             <ul className="history-list">
-              {[...history].reverse().slice(0, 20).map((log, i) => (
+              {[...history].reverse().slice(0, HISTORY_PAGE_SIZE).map((log, i) => (
                 <li key={log.id}>
                   <span className="history-number">{history.length - i}</span>
                   <span className="history-label">{log.label}</span>
@@ -273,7 +274,7 @@ export function DicePage() {
                     <input
                       type="number"
                       min="1"
-                      max="100"
+                      max={MAX_WEIGHT}
                       value={item.weight}
                       onChange={(e) =>
                         updateItem(item.id, { weight: Number(e.target.value) || 1 })

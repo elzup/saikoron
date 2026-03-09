@@ -2,18 +2,9 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useDice } from '../../hooks/useDice'
 import { formatRelativeTime } from '../../lib/time'
+import { MODES, HISTORY_PAGE_SIZE, GRID_MAX_ITEMS, itemHslColor, RELATIVE_TIME_REFRESH_MS } from '../../lib/constants'
 import type { Dice, ModeId } from '../../types'
 import './ModeLayout.css'
-
-const MODES: { id: ModeId; name: string; maxItems?: number }[] = [
-  { id: 'wheel', name: 'ルーレット', maxItems: 100 },
-  { id: 'slot', name: 'スロット' },
-  { id: 'sample', name: 'おみくじ' },
-  { id: 'signage', name: 'サイネージ' },
-]
-
-const HISTORY_PAGE_SIZE = 20
-const GRID_MAX_ITEMS = 100
 
 export function isModeEnabled(modeId: ModeId, dice: Dice): boolean {
   const mode = MODES.find((m) => m.id === modeId)
@@ -41,7 +32,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
 
   // Refresh relative times every 10 seconds
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 10_000)
+    const timer = setInterval(() => setNow(Date.now()), RELATIVE_TIME_REFRESH_MS)
     return () => clearInterval(timer)
   }, [])
 
@@ -154,7 +145,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
                     <span
                       key={item.id}
                       className="panel-grid-cell"
-                      style={{ background: `hsl(${(dice.items.indexOf(item) * 45) % 360}, 70%, 50%)` }}
+                      style={{ background: itemHslColor(dice.items.indexOf(item)) }}
                       title={item.label || `項目${dice.items.indexOf(item) + 1}`}
                     >
                       {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}
@@ -175,7 +166,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
                       <span
                         key={item.id}
                         className="panel-grid-cell drawn"
-                        style={{ background: `hsl(${(dice.items.indexOf(item) * 45) % 360}, 30%, 30%)` }}
+                        style={{ background: itemHslColor(dice.items.indexOf(item), 30, 30) }}
                         title={item.label || `項目${dice.items.indexOf(item) + 1}`}
                       >
                         {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import type { DiceItem } from '../types'
 import { spinDice } from '../lib/dice'
+import { ITEM_COLORS, SLOT_ANIMATION } from '../lib/constants'
 import './SlotRoulette.css'
 
 interface Props {
@@ -9,23 +10,18 @@ interface Props {
   triggerSpin?: number
 }
 
-const COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899',
-]
-
 export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [result, setResult] = useState<DiceItem | null>(null)
   const [displayIndex, setDisplayIndex] = useState(0)
   const timeoutRef = useRef<number | null>(null)
   const triggerRef = useRef(triggerSpin ?? 0)
+  const onResultRef = useRef(onResult)
+  onResultRef.current = onResult
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [])
 
@@ -42,55 +38,36 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
     }
 
     const winnerIndex = items.findIndex((item) => item.id === winner.id)
-    // Total steps: at least 2 full cycles + approach to winner
-    const minCycles = 2
-    const totalSteps = minCycles * items.length + Math.floor(Math.random() * items.length)
+    const totalSteps = SLOT_ANIMATION.TOTAL_STEPS
+    const delayRange = SLOT_ANIMATION.MAX_DELAY - SLOT_ANIMATION.MIN_DELAY
 
+    // Calculate start index so we land on winner after totalSteps
+    const startIdx = (winnerIndex - totalSteps % items.length + items.length * 100) % items.length
+    let currentIdx = startIdx
     let step = 0
-    let currentIdx = displayIndex
 
     const tick = () => {
       step++
       currentIdx = (currentIdx + 1) % items.length
-
-      // On the last few steps, ensure we land on the winner
       const remaining = totalSteps - step
+
       if (remaining <= 0) {
-        // Final: snap to winner
         setDisplayIndex(winnerIndex)
         setIsSpinning(false)
         setResult(winner)
-        onResult?.(winner)
+        onResultRef.current?.(winner)
         return
-      }
-
-      // Adjust current index to land on winner at the end
-      if (remaining <= items.length) {
-        // In the final approach, step toward the winner
-        const stepsToWinner = (winnerIndex - currentIdx + items.length) % items.length
-        if (stepsToWinner === remaining) {
-          // We're on track
-        }
       }
 
       setDisplayIndex(currentIdx)
 
-      // Easing: start fast, gradually slow down
       const progress = step / totalSteps
-      // Exponential ease-out: speed goes from 40ms to 350ms
-      const delay = 40 + 310 * (progress * progress * progress)
-
+      const delay = SLOT_ANIMATION.MIN_DELAY + delayRange * (progress * progress * progress)
       timeoutRef.current = window.setTimeout(tick, delay)
     }
 
-    // Calculate the starting index so we land exactly on the winner
-    // Work backwards from winnerIndex
-    const startIdx = (winnerIndex - totalSteps % items.length + items.length * 100) % items.length
-    currentIdx = startIdx
-
-    // First tick immediately
-    timeoutRef.current = window.setTimeout(tick, 40)
-  }, [items, isSpinning, onResult, displayIndex])
+    timeoutRef.current = window.setTimeout(tick, SLOT_ANIMATION.MIN_DELAY)
+  }, [items, isSpinning])
 
   useEffect(() => {
     if (triggerSpin !== undefined && triggerSpin !== triggerRef.current) {
@@ -107,16 +84,16 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
       <div className="slot-window">
         {items.length > 0 ? (
           <>
-            <div className="slot-item prev" style={{ backgroundColor: COLORS[prevIndex % COLORS.length] }}>
+            <div className="slot-item prev" style={{ backgroundColor: ITEM_COLORS[prevIndex % ITEM_COLORS.length] }}>
               {items[prevIndex]?.label}
             </div>
             <div
               className={`slot-item current ${isSpinning ? 'spinning' : ''}`}
-              style={{ backgroundColor: COLORS[displayIndex % COLORS.length] }}
+              style={{ backgroundColor: ITEM_COLORS[displayIndex % ITEM_COLORS.length] }}
             >
               {items[displayIndex]?.label}
             </div>
-            <div className="slot-item next" style={{ backgroundColor: COLORS[nextIndex % COLORS.length] }}>
+            <div className="slot-item next" style={{ backgroundColor: ITEM_COLORS[nextIndex % ITEM_COLORS.length] }}>
               {items[nextIndex]?.label}
             </div>
           </>

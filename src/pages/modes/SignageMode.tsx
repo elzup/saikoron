@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { ModeLayout } from './ModeLayout'
 import { spinDice } from '../../lib/dice'
 import { useDice } from '../../hooks/useDice'
+import { SIGNAGE_DEFAULT_INTERVAL, SIGNAGE_MAX_INTERVAL } from '../../lib/constants'
 import type { Dice, DiceItem } from '../../types'
 import './SignageMode.css'
 
@@ -10,7 +11,7 @@ export function SignageMode() {
   const [current, setCurrent] = useState<DiceItem | null>(null)
   const [isPaused, setIsPaused] = useState(false)
   const [fadeKey, setFadeKey] = useState(0)
-  const [interval, setInterval_] = useState(5)
+  const [interval, setInterval_] = useState(SIGNAGE_DEFAULT_INTERVAL)
   const [displayCount, setDisplayCount] = useState(1)
   const [loop, setLoop] = useState(false)
   const [displayItems, setDisplayItems] = useState<DiceItem[]>([])
@@ -72,7 +73,7 @@ export function SignageMode() {
               <input
                 type="number"
                 min="1"
-                max="60"
+                max={SIGNAGE_MAX_INTERVAL}
                 value={interval}
                 onChange={(e) => setInterval_(Math.max(1, Number(e.target.value)))}
                 className="signage-setting-input"

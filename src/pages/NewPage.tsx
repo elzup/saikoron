@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
 import { createDiceItem, generateDiceName } from '../lib/dice'
+import { MAX_DICE_ITEMS, RANGE_DEFAULT_MAX } from '../lib/constants'
 import type { DiceItem } from '../types'
 import './NewPage.css'
 
@@ -25,7 +26,7 @@ export function NewPage() {
 
   // Range mode state
   const [rangeMin, setRangeMin] = useState(1)
-  const [rangeMax, setRangeMax] = useState(100)
+  const [rangeMax, setRangeMax] = useState(RANGE_DEFAULT_MAX)
 
   // Text mode state
   const [text, setText] = useState('')
@@ -52,7 +53,7 @@ export function NewPage() {
       const min = Math.min(rangeMin, rangeMax)
       const max = Math.max(rangeMin, rangeMax)
       const count = max - min + 1
-      if (count < 2 || count > 1000) return []
+      if (count < 2 || count > MAX_DICE_ITEMS) return []
       return Array.from({ length: count }, (_, i) =>
         createDiceItem(String(min + i))
       )
@@ -156,7 +157,7 @@ export function NewPage() {
 
         {mode === 'range' && (
           <div className="items-editor">
-            <p className="hint">数値の範囲を指定してダイスを作成（最大1000項目）</p>
+            <p className="hint">数値の範囲を指定してダイスを作成（最大{MAX_DICE_ITEMS}項目）</p>
             <div className="range-form">
               <div className="range-row">
                 <label>最小値</label>
@@ -178,8 +179,8 @@ export function NewPage() {
               </div>
               <p className="range-info">
                 {rangeCount} 項目
-                {rangeCount > 1000 && (
-                  <span className="range-warning"> (上限: 1000)</span>
+                {rangeCount > MAX_DICE_ITEMS && (
+                  <span className="range-warning"> (上限: {MAX_DICE_ITEMS})</span>
                 )}
               </p>
             </div>

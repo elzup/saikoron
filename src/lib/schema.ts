@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { MAX_DICE_ITEMS, MAX_HISTORY_ENTRIES } from './constants'
 
 export const diceItemSchema = z.object({
   id: z.string().min(1),
@@ -18,8 +19,8 @@ const modeIdSchema = z.enum(['wheel', 'slot', 'sample', 'signage'])
 export const diceSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).max(200),
-  items: z.array(diceItemSchema).max(1000),
-  history: z.array(resultLogSchema).max(10000),
+  items: z.array(diceItemSchema).max(MAX_DICE_ITEMS),
+  history: z.array(resultLogSchema).max(MAX_HISTORY_ENTRIES),
   lastMode: modeIdSchema.default('slot'),
   createdAt: z.number(),
   updatedAt: z.number(),
