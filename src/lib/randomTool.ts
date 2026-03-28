@@ -392,5 +392,6 @@ export function randomToolToDice(tool: RandomTool): Dice | null {
     createdAt: tool.createdAt,
     updatedAt: tool.updatedAt,
     storageState: 'local',
+    lastMode: 'slot',
   }
 }

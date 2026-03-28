@@ -18,6 +18,7 @@ describe('storage', () => {
     createdAt: 1000,
     updatedAt: 2000,
     storageState: 'local',
+    lastMode: 'slot',
   }
 
   describe('loadDice', () => {

@@ -141,7 +141,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
               <div className="panel-items-section">
                 <span className="panel-items-label">未出 ({undrawnItems.length})</span>
                 <div className="panel-items-grid">
-                  {undrawnItems.slice(0, GRID_MAX_ITEMS).map((item, index) => (
+                  {undrawnItems.slice(0, GRID_MAX_ITEMS).map((item) => (
                     <span
                       key={item.id}
                       className="panel-grid-cell"
