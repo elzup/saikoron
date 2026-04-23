@@ -5,21 +5,21 @@
 
 import { nanoid } from 'nanoid'
 import type {
-  ListSource,
-  RangeSource,
-  ListItem,
+  DrawingType,
   DrawMode,
   DrawResult,
   ListDrawResult,
-  RangeDrawResult,
+  ListItem,
+  ListSource,
   RandomTool,
-  DrawingType,
+  RangeDrawResult,
+  RangeSource,
 } from '../types/randomTool'
 import {
-  isListSource,
   getCompatibleDrawings,
   getDefaultDrawing,
   getDefaultDrawMode,
+  isListSource,
 } from '../types/randomTool'
 
 // ========================================
@@ -138,9 +138,10 @@ export function drawMultipleFromRange(
 /**
  * ランダムツールを実行
  */
-export function executeRandomTool(
-  tool: RandomTool
-): { result: DrawResult; updatedTool: RandomTool } {
+export function executeRandomTool(tool: RandomTool): {
+  result: DrawResult
+  updatedTool: RandomTool
+} {
   const { source, drawMode, excludedIds } = tool
   const timestamp = Date.now()
 

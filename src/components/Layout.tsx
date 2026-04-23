@@ -14,53 +14,54 @@ export function Layout({ children }: Props) {
   const location = useLocation()
 
   return (
-    <div className="layout">
+    <div className='layout'>
       <button
-        className="menu-button"
+        type='button'
+        className='menu-button'
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="メニュー"
+        aria-label='繝｡繝九Η繝ｼ'
       >
-        {isOpen ? '×' : '☰'}
+        {isOpen ? 'ﾃ・' : '笘ｰ'}
       </button>
 
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <Link to="/" className="logo" onClick={() => setIsOpen(false)}>
+        <div className='sidebar-header'>
+          <Link to='/' className='logo' onClick={() => setIsOpen(false)}>
             Saikoron
           </Link>
           <LoginButton />
         </div>
 
-        <nav className="sidebar-nav">
-          <div className="nav-section">
-            <span className="nav-section-title">ツール</span>
+        <nav className='sidebar-nav'>
+          <div className='nav-section'>
+            <span className='nav-section-title'>繝・・繝ｫ</span>
             <Link
-              to="/new"
-              className="nav-item new-item"
+              to='/new'
+              className='nav-item new-item'
               onClick={() => setIsOpen(false)}
             >
-              + 新規ダイス
+              + 譁ｰ隕上ム繧､繧ｹ
             </Link>
             <Link
-              to="/new?mode=range"
+              to='/new?mode=range'
               className={`nav-item tool-item ${location.search.includes('mode=range') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              🎲 範囲で作成
+              軸 遽・峇縺ｧ菴懈・
             </Link>
             <Link
-              to="/new?mode=text"
+              to='/new?mode=text'
               className={`nav-item tool-item ${location.search.includes('mode=text') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              🎯 テキストで作成
+              識 繝・く繧ｹ繝医〒菴懈・
             </Link>
           </div>
 
-          <div className="nav-section">
-            <span className="nav-section-title">ダイス一覧</span>
+          <div className='nav-section'>
+            <span className='nav-section-title'>繝繧､繧ｹ荳隕ｧ</span>
             {isLoaded && dice.length === 0 && (
-              <p className="empty-message">まだダイスがありません</p>
+              <p className='empty-message'>縺ｾ縺繝繧､繧ｹ縺後≠繧翫∪縺帙ｓ</p>
             )}
             {dice.map((d) => (
               <Link
@@ -77,10 +78,15 @@ export function Layout({ children }: Props) {
       </aside>
 
       {isOpen && (
-        <div className="overlay" onClick={() => setIsOpen(false)} />
+        <button
+          type='button'
+          className='overlay'
+          aria-label='繝｡繝九Η繝ｼ繧定閉縺倥ｋ'
+          onClick={() => setIsOpen(false)}
+        />
       )}
 
-      <main className="main-content">{children}</main>
+      <main className='main-content'>{children}</main>
     </div>
   )
 }

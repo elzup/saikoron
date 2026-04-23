@@ -9,9 +9,13 @@ export function LoginButton() {
 
   if (user) {
     return (
-      <div className="login-button-area">
-        <span className="user-name">{user.displayName}</span>
-        <button className="logout-button" onClick={() => signOut()}>
+      <div className='login-button-area'>
+        <span className='user-name'>{user.displayName}</span>
+        <button
+          type='button'
+          className='logout-button'
+          onClick={() => signOut()}
+        >
           ログアウト
         </button>
       </div>
@@ -19,7 +23,11 @@ export function LoginButton() {
   }
 
   return (
-    <button className="login-button" onClick={() => signInWithGoogle()}>
+    <button
+      type='button'
+      className='login-button'
+      onClick={() => signInWithGoogle()}
+    >
       Googleでログイン
     </button>
   )

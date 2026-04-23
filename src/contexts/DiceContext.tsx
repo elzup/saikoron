@@ -1,27 +1,27 @@
 import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
   type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
 } from 'react'
-import type { Dice, DiceItem, ModeId } from '../types'
-import { loadDice, saveDice, clearDice } from '../lib/storage'
 import {
   createDice,
-  updateDice,
-  duplicateDice,
   createResultLog,
+  duplicateDice,
+  updateDice,
 } from '../lib/dice'
-import { useAuth } from './AuthContext'
 import {
-  subscribeToDice,
-  saveDiceToFirestore,
   deleteDiceFromFirestore,
+  saveDiceToFirestore,
+  subscribeToDice,
 } from '../lib/firebase/firestore'
 import { syncLocalToCloud } from '../lib/firebase/sync'
+import { clearDice, loadDice, saveDice } from '../lib/storage'
+import type { Dice, DiceItem, ModeId } from '../types'
+import { useAuth } from './AuthContext'
 
 interface DiceContextValue {
   dice: Dice[]
@@ -61,13 +61,10 @@ export function DiceProvider({ children }: { children: ReactNode }) {
         clearDice()
       })
 
-      unsubscribeRef.current = subscribeToDice(
-        user.uid,
-        (cloudDice) => {
-          setDice(cloudDice)
-          setIsLoaded(true)
-        }
-      )
+      unsubscribeRef.current = subscribeToDice(user.uid, (cloudDice) => {
+        setDice(cloudDice)
+        setIsLoaded(true)
+      })
     } else {
       if (prevUserRef.current !== null) {
         setDice([])

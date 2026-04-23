@@ -48,7 +48,9 @@
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .items-textarea:focus {

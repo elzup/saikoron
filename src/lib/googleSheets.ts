@@ -1,6 +1,6 @@
-import { createDiceItem } from './dice'
-import { MAX_DICE_ITEMS } from './constants'
 import type { DiceItem } from '../types'
+import { MAX_DICE_ITEMS } from './constants'
+import { createDiceItem } from './dice'
 
 const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets'
 
@@ -69,7 +69,10 @@ async function fetchJson<T>(url: string, accessToken: string): Promise<T> {
   return response.json() as Promise<T>
 }
 
-function resolveSheetTitle(metadata: SpreadsheetMetadata, gid?: string): string {
+function resolveSheetTitle(
+  metadata: SpreadsheetMetadata,
+  gid?: string
+): string {
   const sheets = metadata.sheets ?? []
   if (sheets.length === 0) {
     throw new Error('シートが見つかりません')
@@ -93,15 +96,20 @@ function normalizeHeader(value: string): string {
 }
 
 function parseWeight(rawValue: string | undefined, rowNumber: number): number {
-  if (!rawValue || !rawValue.trim()) return 1
+  if (!rawValue?.trim()) return 1
   const weight = Number(rawValue)
   if (!Number.isFinite(weight) || weight <= 0) {
-    throw new Error(`${rowNumber}行目の rate は 0 より大きい数値で指定してください`)
+    throw new Error(
+      `${rowNumber}行目の rate は 0 より大きい数値で指定してください`
+    )
   }
   return weight
 }
 
-function parseColor(rawValue: string | undefined, rowNumber: number): string | undefined {
+function parseColor(
+  rawValue: string | undefined,
+  rowNumber: number
+): string | undefined {
   const color = rawValue?.trim()
   if (!color) return undefined
   if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(color)) {
@@ -110,7 +118,9 @@ function parseColor(rawValue: string | undefined, rowNumber: number): string | u
   if (/^(rgb|rgba|hsl|hsla)\(/i.test(color)) {
     return color
   }
-  throw new Error(`${rowNumber}行目の color は CSS color 形式で指定してください`)
+  throw new Error(
+    `${rowNumber}行目の color は CSS color 形式で指定してください`
+  )
 }
 
 function rowsToDiceItems(rows: string[][]): DiceItem[] {
@@ -119,7 +129,9 @@ function rowsToDiceItems(rows: string[][]): DiceItem[] {
   }
 
   const [header, ...body] = rows
-  const headerMap = new Map(header.map((cell, index) => [normalizeHeader(cell), index]))
+  const headerMap = new Map(
+    header.map((cell, index) => [normalizeHeader(cell), index])
+  )
   const nameIndex = headerMap.get('name')
   const rateIndex = headerMap.get('rate')
   const colorIndex = headerMap.get('color')
@@ -136,8 +148,14 @@ function rowsToDiceItems(rows: string[][]): DiceItem[] {
 
       return createDiceItem(
         label,
-        parseWeight(rateIndex !== undefined ? row[rateIndex] : undefined, rowNumber),
-        parseColor(colorIndex !== undefined ? row[colorIndex] : undefined, rowNumber)
+        parseWeight(
+          rateIndex !== undefined ? row[rateIndex] : undefined,
+          rowNumber
+        ),
+        parseColor(
+          colorIndex !== undefined ? row[colorIndex] : undefined,
+          rowNumber
+        )
       )
     })
     .filter((item): item is DiceItem => item !== null)

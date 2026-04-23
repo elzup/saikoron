@@ -1,8 +1,8 @@
 import {
-  GoogleAuthProvider,
-  signInWithPopup,
   signOut as firebaseSignOut,
+  GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithPopup,
   type User,
   type UserCredential,
 } from 'firebase/auth'

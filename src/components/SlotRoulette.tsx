@@ -1,7 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
-import type { DiceItem } from '../types'
-import { spinDice } from '../lib/dice'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ITEM_COLORS, SLOT_ANIMATION } from '../lib/constants'
+import { spinDice } from '../lib/dice'
+import type { DiceItem } from '../types'
 import './SlotRoulette.css'
 
 interface Props {
@@ -41,8 +41,9 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
     const totalSteps = SLOT_ANIMATION.TOTAL_STEPS
     const delayRange = SLOT_ANIMATION.MAX_DELAY - SLOT_ANIMATION.MIN_DELAY
 
-    // Calculate start index so we land on winner after totalSteps
-    const startIdx = (winnerIndex - totalSteps % items.length + items.length * 100) % items.length
+    const startIdx =
+      (winnerIndex - (totalSteps % items.length) + items.length * 100) %
+      items.length
     let currentIdx = startIdx
     let step = 0
 
@@ -62,7 +63,8 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
       setDisplayIndex(currentIdx)
 
       const progress = step / totalSteps
-      const delay = SLOT_ANIMATION.MIN_DELAY + delayRange * (progress * progress * progress)
+      const delay =
+        SLOT_ANIMATION.MIN_DELAY + delayRange * (progress * progress * progress)
       timeoutRef.current = window.setTimeout(tick, delay)
     }
 
@@ -80,40 +82,55 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
   const nextIndex = (displayIndex + 1) % items.length
 
   return (
-    <div className="slot-container">
-      <div className="slot-window">
+    <div className='slot-container'>
+      <div className='slot-window'>
         {items.length > 0 ? (
           <>
-            <div className="slot-item prev" style={{ backgroundColor: ITEM_COLORS[prevIndex % ITEM_COLORS.length] }}>
+            <div
+              className='slot-item prev'
+              style={{
+                backgroundColor: ITEM_COLORS[prevIndex % ITEM_COLORS.length],
+              }}
+            >
               {items[prevIndex]?.label}
             </div>
             <div
               className={`slot-item current ${isSpinning ? 'spinning' : ''}`}
-              style={{ backgroundColor: ITEM_COLORS[displayIndex % ITEM_COLORS.length] }}
+              style={{
+                backgroundColor: ITEM_COLORS[displayIndex % ITEM_COLORS.length],
+              }}
             >
               {items[displayIndex]?.label}
             </div>
-            <div className="slot-item next" style={{ backgroundColor: ITEM_COLORS[nextIndex % ITEM_COLORS.length] }}>
+            <div
+              className='slot-item next'
+              style={{
+                backgroundColor: ITEM_COLORS[nextIndex % ITEM_COLORS.length],
+              }}
+            >
               {items[nextIndex]?.label}
             </div>
           </>
         ) : (
-          <div className="slot-item current empty">項目を追加してください</div>
+          <div className='slot-item current empty'>
+            鬆・岼繧定ｿｽ蜉縺励※縺上□縺輔＞
+          </div>
         )}
-        <div className="slot-highlight" />
+        <div className='slot-highlight' />
       </div>
 
       <button
-        className="spin-button"
+        type='button'
+        className='spin-button'
         onClick={spin}
         disabled={isSpinning || items.length === 0}
       >
-        {isSpinning ? '抽選中...' : 'スタート'}
+        {isSpinning ? '謚ｽ驕ｸ荳ｭ...' : '繧ｹ繧ｿ繝ｼ繝・'}
       </button>
 
       {result && (
-        <div className="result">
-          結果: <strong>{result.label}</strong>
+        <div className='result'>
+          邨先棡: <strong>{result.label}</strong>
         </div>
       )}
     </div>

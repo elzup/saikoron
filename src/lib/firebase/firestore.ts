@@ -1,17 +1,17 @@
 import {
   collection,
-  doc,
-  setDoc,
   deleteDoc,
+  doc,
   getDocs,
   onSnapshot,
   query,
-  writeBatch,
+  setDoc,
   type Unsubscribe,
+  writeBatch,
 } from 'firebase/firestore'
-import { db } from './config'
 import type { Dice } from '../../types'
 import { validateDice } from '../schema'
+import { db } from './config'
 
 function diceCollection(uid: string) {
   return collection(db, 'users', uid, 'dice')
@@ -21,9 +21,7 @@ function diceDoc(uid: string, diceId: string) {
   return doc(db, 'users', uid, 'dice', diceId)
 }
 
-function toFirestoreData(
-  dice: Dice
-): Omit<Dice, 'storageState'> {
+function toFirestoreData(dice: Dice): Omit<Dice, 'storageState'> {
   const { storageState: _, ...data } = dice
   return data
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const AUTO_SPIN_INTERVAL_MS = 60_000
 const COUNTDOWN_INTERVAL_MS = 1_000

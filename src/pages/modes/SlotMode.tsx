@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { ModeLayout } from './ModeLayout'
 import { SlotRoulette } from '../../components/SlotRoulette'
 import { useDice } from '../../hooks/useDice'
 import type { DiceItem } from '../../types'
+import { ModeLayout } from './ModeLayout'
 
 export function SlotMode() {
   const { addHistory } = useDice()
@@ -15,7 +15,7 @@ export function SlotMode() {
   )
 
   return (
-    <ModeLayout modeId="slot">
+    <ModeLayout modeId='slot'>
       {(dice) => (
         <SlotRoulette
           items={dice.items}

@@ -28,12 +28,22 @@ export const MODE_EMOJI: Record<ModeId, string> = Object.fromEntries(
 
 /** 共通カラーパレット (ルーレット, スロット用) */
 export const ITEM_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#14b8a6',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
 ]
 
 /** グリッドセルの色を生成 */
-export function itemHslColor(index: number, saturation = 70, lightness = 50): string {
+export function itemHslColor(
+  index: number,
+  saturation = 70,
+  lightness = 50
+): string {
   return `hsl(${(index * 45) % 360}, ${saturation}%, ${lightness}%)`
 }
 
