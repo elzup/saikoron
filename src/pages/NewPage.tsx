@@ -2,7 +2,9 @@ import { useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
 import { createDiceItem, generateDiceName } from '../lib/dice'
+import { importDiceItemsFromSpreadsheet } from '../lib/googleSheets'
 import { MAX_DICE_ITEMS, RANGE_DEFAULT_MAX } from '../lib/constants'
+import { signInWithGoogleScopes } from '../lib/firebase/auth'
 import type { DiceItem } from '../types'
 import './NewPage.css'
 
@@ -23,6 +25,9 @@ export function NewPage() {
     createDiceItem(''),
     createDiceItem(''),
   ])
+  const [sheetUrl, setSheetUrl] = useState('')
+  const [isImportingSheet, setIsImportingSheet] = useState(false)
+  const [sheetError, setSheetError] = useState('')
 
   // Range mode state
   const [rangeMin, setRangeMin] = useState(1)
@@ -81,6 +86,35 @@ export function NewPage() {
     navigate(`/dice/${newDice.id}/slot`)
   }
 
+  const handleImportSheet = useCallback(async () => {
+    setIsImportingSheet(true)
+    setSheetError('')
+
+    try {
+      const { accessToken } = await signInWithGoogleScopes([
+        'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/spreadsheets.readonly',
+      ])
+
+      if (!accessToken) {
+        throw new Error('Google Sheets 読み込み用のアクセストークンを取得できませんでした')
+      }
+
+      const result = await importDiceItemsFromSpreadsheet(sheetUrl, accessToken)
+      setItems(result.items)
+      setMode('list')
+      setName((prev) => prev.trim() || result.title)
+    } catch (error) {
+      setSheetError(
+        error instanceof Error
+          ? error.message
+          : 'スプレッドシートの読込に失敗しました'
+      )
+    } finally {
+      setIsImportingSheet(false)
+    }
+  }, [sheetUrl])
+
   return (
     <div className="new-page">
       <header className="page-header">
@@ -102,6 +136,32 @@ export function NewPage() {
             placeholder="ダイス名（空欄で自動生成）"
             className="name-input"
           />
+        </div>
+
+        <div className="items-editor sheet-importer">
+          <p className="hint">
+            Google スプレッドシートの `name`, `rate`, `color` 列を読み込んでルーレット項目に変換します
+          </p>
+          <div className="sheet-import-row">
+            <input
+              type="text"
+              value={sheetUrl}
+              onChange={(e) => setSheetUrl(e.target.value)}
+              placeholder="https://docs.google.com/spreadsheets/d/..."
+              className="sheet-input"
+            />
+            <button
+              className="sheet-import-button"
+              onClick={() => void handleImportSheet()}
+              disabled={isImportingSheet || !sheetUrl.trim()}
+            >
+              {isImportingSheet ? '読込中...' : 'Google Sheets から読込'}
+            </button>
+          </div>
+          <p className="sheet-note">
+            対象シートの先頭行に `name,rate,color` を置いてください。`rate` と `color` は省略可能です。
+          </p>
+          {sheetError && <p className="sheet-error">{sheetError}</p>}
         </div>
 
         <div className="create-mode-tabs">

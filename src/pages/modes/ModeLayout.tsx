@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { useDice } from '../../hooks/useDice'
 import { formatRelativeTime } from '../../lib/time'
-import { MODES, HISTORY_PAGE_SIZE, GRID_MAX_ITEMS, itemHslColor, RELATIVE_TIME_REFRESH_MS } from '../../lib/constants'
+import { MODES, HISTORY_PAGE_SIZE, GRID_MAX_ITEMS, itemDisplayColor, RELATIVE_TIME_REFRESH_MS } from '../../lib/constants'
 import type { Dice, ModeId } from '../../types'
 import './ModeLayout.css'
 
@@ -141,11 +141,16 @@ export function ModeLayout({ children, modeId, settings }: Props) {
               <div className="panel-items-section">
                 <span className="panel-items-label">未出 ({undrawnItems.length})</span>
                 <div className="panel-items-grid">
-                  {undrawnItems.slice(0, GRID_MAX_ITEMS).map((item, index) => (
+                  {undrawnItems.slice(0, GRID_MAX_ITEMS).map((item) => (
                     <span
                       key={item.id}
                       className="panel-grid-cell"
-                      style={{ background: itemHslColor(dice.items.indexOf(item)) }}
+                      style={{
+                        background: itemDisplayColor(
+                          item.color,
+                          dice.items.indexOf(item)
+                        ),
+                      }}
                       title={item.label || `項目${dice.items.indexOf(item) + 1}`}
                     >
                       {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}
@@ -166,7 +171,14 @@ export function ModeLayout({ children, modeId, settings }: Props) {
                       <span
                         key={item.id}
                         className="panel-grid-cell drawn"
-                        style={{ background: itemHslColor(dice.items.indexOf(item), 30, 30) }}
+                        style={{
+                          background: itemDisplayColor(
+                            item.color,
+                            dice.items.indexOf(item),
+                            30,
+                            30
+                          ),
+                        }}
                         title={item.label || `項目${dice.items.indexOf(item) + 1}`}
                       >
                         {(item.label || `${dice.items.indexOf(item) + 1}`).slice(0, 3)}

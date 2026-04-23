@@ -3,7 +3,7 @@ import { ModeLayout } from './ModeLayout'
 import { spinDice } from '../../lib/dice'
 import { useDice } from '../../hooks/useDice'
 import { SIGNAGE_DEFAULT_INTERVAL, SIGNAGE_MAX_INTERVAL } from '../../lib/constants'
-import type { Dice, DiceItem } from '../../types'
+import type { DiceItem } from '../../types'
 import './SignageMode.css'
 
 export function SignageMode() {

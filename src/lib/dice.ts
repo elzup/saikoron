@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { Dice, DiceItem, ModeId, ResultLog } from '../types'
+import type { Dice, DiceItem, ResultLog } from '../types'
 import { DICE_NAME_MAX_LABELS } from './constants'
 
 export function generateDiceName(items: DiceItem[]): string {
@@ -20,6 +20,7 @@ export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
       id: nanoid(),
       label: item.label,
       weight: item.weight ?? 1,
+      color: item.color,
     })),
     history: [],
     lastMode: 'slot',
@@ -29,11 +30,12 @@ export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
   }
 }
 
-export function createDiceItem(label: string, weight = 1): DiceItem {
+export function createDiceItem(label: string, weight = 1, color?: string): DiceItem {
   return {
     id: nanoid(),
     label,
     weight,
+    color,
   }
 }
 

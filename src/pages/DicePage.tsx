@@ -3,7 +3,7 @@ import { useParams, Navigate, Link } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
 import { createDiceItem, generateDiceName } from '../lib/dice'
 import { formatRelativeTime } from '../lib/time'
-import { itemHslColor, HISTORY_PAGE_SIZE, RELATIVE_TIME_REFRESH_MS, MAX_WEIGHT } from '../lib/constants'
+import { itemDisplayColor, HISTORY_PAGE_SIZE, RELATIVE_TIME_REFRESH_MS, MAX_WEIGHT } from '../lib/constants'
 import type { DiceItem } from '../types'
 import './DicePage.css'
 
@@ -189,7 +189,7 @@ export function DicePage() {
               <span
                 key={item.id}
                 className="grid-cell"
-                style={{ background: itemHslColor(index) }}
+                style={{ background: itemDisplayColor(item.color, index) }}
                 title={`${item.label || `項目${index + 1}`} (${getPercentage(item.weight).toFixed(1)}%)`}
               >
                 {(item.label || `${index + 1}`).slice(0, 3)}

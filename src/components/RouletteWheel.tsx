@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import type { DiceItem } from '../types'
 import { spinDice, calculateItemAngle } from '../lib/dice'
-import { ITEM_COLORS, WHEEL_ANIMATION } from '../lib/constants'
+import { ITEM_COLORS, WHEEL_ANIMATION, itemDisplayColor } from '../lib/constants'
 import './RouletteWheel.css'
 
 interface Props {
@@ -87,7 +87,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
             <g key={item.id}>
               <path
                 d={`M 0 0 L ${x1} ${y1} A 100 100 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                fill={ITEM_COLORS[index % ITEM_COLORS.length]}
+                fill={item.color || itemDisplayColor(ITEM_COLORS[index % ITEM_COLORS.length], index)}
                 stroke="#fff"
                 strokeWidth="2"
               />

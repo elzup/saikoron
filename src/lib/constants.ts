@@ -37,6 +37,15 @@ export function itemHslColor(index: number, saturation = 70, lightness = 50): st
   return `hsl(${(index * 45) % 360}, ${saturation}%, ${lightness}%)`
 }
 
+export function itemDisplayColor(
+  color: string | undefined,
+  index: number,
+  saturation = 70,
+  lightness = 50
+): string {
+  return color?.trim() || itemHslColor(index, saturation, lightness)
+}
+
 // ========================================
 // アニメーション
 // ========================================

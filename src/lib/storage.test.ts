@@ -15,6 +15,7 @@ describe('storage', () => {
       { id: 'item-2', label: '項目2', weight: 2 },
     ],
     history: [],
+    lastMode: 'slot',
     createdAt: 1000,
     updatedAt: 2000,
     storageState: 'local',
