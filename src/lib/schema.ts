@@ -5,6 +5,7 @@ export const diceItemSchema = z.object({
   id: z.string().min(1),
   label: z.string(),
   weight: z.number().min(0),
+  color: z.string().optional(),
 })
 
 export const resultLogSchema = z.object({

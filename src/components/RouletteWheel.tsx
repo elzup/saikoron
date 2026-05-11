@@ -1,7 +1,11 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  ITEM_COLORS,
+  itemDisplayColor,
+  WHEEL_ANIMATION,
+} from '../lib/constants'
+import { calculateItemAngle, spinDice } from '../lib/dice'
 import type { DiceItem } from '../types'
-import { spinDice, calculateItemAngle } from '../lib/dice'
-import { ITEM_COLORS, WHEEL_ANIMATION } from '../lib/constants'
 import './RouletteWheel.css'
 
 interface Props {
@@ -16,6 +20,9 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
   const [result, setResult] = useState<DiceItem | null>(null)
   const triggerRef = useRef(triggerSpin ?? 0)
   const onResultRef = useRef(onResult)
+  const wheelTitleId = useRef(
+    `roulette-wheel-${Math.random().toString(36).slice(2)}`
+  )
   onResultRef.current = onResult
 
   const spin = useCallback(() => {
@@ -34,7 +41,8 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
     const { startAngle, endAngle } = calculateItemAngle(items, winnerIndex)
     const midAngle = (startAngle + endAngle) / 2
 
-    const spins = WHEEL_ANIMATION.MIN_SPINS + Math.random() * WHEEL_ANIMATION.RANDOM_SPINS
+    const spins =
+      WHEEL_ANIMATION.MIN_SPINS + Math.random() * WHEEL_ANIMATION.RANDOM_SPINS
     const targetRotation = spins * 360 + (360 - midAngle)
 
     setRotation((prev) => prev + targetRotation)
@@ -54,11 +62,14 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
   }, [triggerSpin, spin])
 
   return (
-    <div className="roulette-container">
-      <div className="roulette-pointer" />
+    <div className='roulette-container'>
+      <div className='roulette-pointer' />
       <svg
-        className="roulette-wheel"
-        viewBox="-110 -110 220 220"
+        className='roulette-wheel'
+        viewBox='-110 -110 220 220'
+        role='button'
+        tabIndex={0}
+        aria-labelledby={wheelTitleId.current}
         style={{
           transform: `rotate(${rotation}deg)`,
           transition: isSpinning
@@ -66,7 +77,14 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
             : 'none',
         }}
         onClick={spin}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            spin()
+          }
+        }}
       >
+        <title id={wheelTitleId.current}>ルーレットを回す</title>
         {items.map((item, index) => {
           const { startAngle, endAngle } = calculateItemAngle(items, index)
           const largeArc = endAngle - startAngle > 180 ? 1 : 0
@@ -87,41 +105,55 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
             <g key={item.id}>
               <path
                 d={`M 0 0 L ${x1} ${y1} A 100 100 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                fill={ITEM_COLORS[index % ITEM_COLORS.length]}
-                stroke="#fff"
-                strokeWidth="2"
+                fill={
+                  item.color ||
+                  itemDisplayColor(
+                    ITEM_COLORS[index % ITEM_COLORS.length],
+                    index
+                  )
+                }
+                stroke='#fff'
+                strokeWidth='2'
               />
               <text
                 x={textX}
                 y={textY}
-                fill="#fff"
-                fontSize="12"
-                fontWeight="bold"
-                textAnchor="middle"
-                dominantBaseline="middle"
+                fill='#fff'
+                fontSize='12'
+                fontWeight='bold'
+                textAnchor='middle'
+                dominantBaseline='middle'
                 transform={`rotate(${textRotation}, ${textX}, ${textY})`}
               >
-                {item.label.length > 8 ? item.label.slice(0, 8) + '...' : item.label}
+                {item.label.length > 8
+                  ? `${item.label.slice(0, 8)}...`
+                  : item.label}
               </text>
             </g>
           )
         })}
         {items.length === 0 && (
-          <text fill="#999" fontSize="14" textAnchor="middle" dominantBaseline="middle">
-            項目を追加してください
+          <text
+            fill='#999'
+            fontSize='14'
+            textAnchor='middle'
+            dominantBaseline='middle'
+          >
+            鬆・岼繧定ｿｽ蜉縺励※縺上□縺輔＞
           </text>
         )}
       </svg>
       <button
-        className="spin-button"
+        type='button'
+        className='spin-button'
         onClick={spin}
         disabled={isSpinning || items.length === 0}
       >
-        {isSpinning ? '回転中...' : 'スピン'}
+        {isSpinning ? '蝗櫁ｻ｢荳ｭ...' : '繧ｹ繝斐Φ'}
       </button>
       {result && (
-        <div className="result">
-          結果: <strong>{result.label}</strong>
+        <div className='result'>
+          邨先棡: <strong>{result.label}</strong>
         </div>
       )}
     </div>

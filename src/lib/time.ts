@@ -11,6 +11,7 @@ export function formatRelativeTime(timestamp: number, now: number): string {
   if (hours < 24) return `${hours}時間前`
 
   const date = new Date(timestamp)
+
   if (days === 1) {
     return `昨日 ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
   }

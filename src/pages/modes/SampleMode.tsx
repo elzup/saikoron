@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import {
+  SAMPLE_DELAY_MS,
+  SAMPLE_DUPLICATE_MULTIPLIER,
+} from '../../lib/constants'
 import { ModeLayout } from './ModeLayout'
-import { SAMPLE_DELAY_MS, SAMPLE_DUPLICATE_MULTIPLIER } from '../../lib/constants'
 import './SampleMode.css'
 
 export function SampleMode() {
@@ -11,37 +14,42 @@ export function SampleMode() {
 
   return (
     <ModeLayout
-      modeId="sample"
+      modeId='sample'
       settings={(dice) => {
-        const maxCount = allowDuplicates ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER : dice.items.length
+        const maxCount = allowDuplicates
+          ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER
+          : dice.items.length
         return (
-          <div className="sample-settings">
-            <div className="sample-row">
-              <label>抽出数</label>
+          <div className='sample-settings'>
+            <div className='sample-row'>
+              <label htmlFor='sample-count'>謚ｽ蜃ｺ謨ｰ</label>
               <input
-                type="number"
-                min="1"
+                id='sample-count'
+                type='number'
+                min='1'
                 max={maxCount}
                 value={count}
                 onChange={(e) => setCount(Math.max(1, Number(e.target.value)))}
-                className="sample-count-input"
+                className='sample-count-input'
               />
-              <span className="sample-total">/ {dice.items.length}</span>
+              <span className='sample-total'>/ {dice.items.length}</span>
             </div>
-            <div className="sample-row">
-              <label>重複</label>
-              <div className="sample-toggle">
+            <div className='sample-row'>
+              <span>驥崎､・</span>
+              <div className='sample-toggle'>
                 <button
+                  type='button'
                   className={!allowDuplicates ? 'active' : ''}
                   onClick={() => setAllowDuplicates(false)}
                 >
-                  なし
+                  縺ｪ縺・
                 </button>
                 <button
+                  type='button'
                   className={allowDuplicates ? 'active' : ''}
                   onClick={() => setAllowDuplicates(true)}
                 >
-                  あり
+                  縺ゅｊ
                 </button>
               </div>
             </div>
@@ -50,7 +58,9 @@ export function SampleMode() {
       }}
     >
       {(dice) => {
-        const maxCount = allowDuplicates ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER : dice.items.length
+        const maxCount = allowDuplicates
+          ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER
+          : dice.items.length
         const isValid = count > 0 && count <= maxCount && dice.items.length > 0
 
         const draw = () => {
@@ -79,21 +89,22 @@ export function SampleMode() {
         }
 
         return (
-          <div className="sample-container">
+          <div className='sample-container'>
             <button
-              className="sample-button"
+              type='button'
+              className='sample-button'
               onClick={draw}
               disabled={!isValid || isSpinning}
             >
-              {isSpinning ? '抽出中...' : 'おみくじ'}
+              {isSpinning ? '謚ｽ蜃ｺ荳ｭ...' : '縺翫∩縺上§'}
             </button>
 
             {results.length > 0 && (
-              <div className="sample-results">
+              <div className='sample-results'>
                 {results.map((item, i) => (
-                  <div key={i} className="sample-result-item">
-                    <span className="sample-result-number">{i + 1}</span>
-                    <span className="sample-result-label">{item}</span>
+                  <div key={i} className='sample-result-item'>
+                    <span className='sample-result-number'>{i + 1}</span>
+                    <span className='sample-result-label'>{item}</span>
                   </div>
                 ))}
               </div>

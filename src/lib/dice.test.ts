@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
+  calculateItemAngle,
   createDice,
   createDiceItem,
-  updateDice,
   duplicateDice,
   spinDice,
-  calculateItemAngle,
+  updateDice,
 } from './dice'
 
 describe('createDiceItem', () => {
@@ -93,7 +93,7 @@ describe('spinDice', () => {
 
     const result = spinDice(items)
     expect(result).not.toBeNull()
-    expect(items.some((item) => item.id === result!.id)).toBe(true)
+    expect(items.some((item) => item.id === result?.id)).toBe(true)
   })
 
   it('respects weight distribution', () => {

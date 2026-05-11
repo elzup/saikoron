@@ -20,6 +20,7 @@ export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
       id: nanoid(),
       label: item.label,
       weight: item.weight ?? 1,
+      color: item.color,
     })),
     history: [],
     lastMode: 'slot',
@@ -29,11 +30,16 @@ export function createDice(name: string, items: Omit<DiceItem, 'id'>[]): Dice {
   }
 }
 
-export function createDiceItem(label: string, weight = 1): DiceItem {
+export function createDiceItem(
+  label: string,
+  weight = 1,
+  color?: string
+): DiceItem {
   return {
     id: nanoid(),
     label,
     weight,
+    color,
   }
 }
 
@@ -46,7 +52,10 @@ export function createResultLog(item: DiceItem): ResultLog {
   }
 }
 
-export function updateDice(dice: Dice, updates: Partial<Pick<Dice, 'name' | 'items' | 'history'>>): Dice {
+export function updateDice(
+  dice: Dice,
+  updates: Partial<Pick<Dice, 'name' | 'items' | 'history'>>
+): Dice {
   return {
     ...dice,
     ...updates,
@@ -91,7 +100,10 @@ export function spinDice(items: DiceItem[]): DiceItem | null {
   return items[items.length - 1]
 }
 
-export function calculateItemAngle(items: DiceItem[], index: number): { startAngle: number; endAngle: number } {
+export function calculateItemAngle(
+  items: DiceItem[],
+  index: number
+): { startAngle: number; endAngle: number } {
   const totalWeight = items.reduce((sum, item) => sum + item.weight, 0)
   if (totalWeight === 0) return { startAngle: 0, endAngle: 0 }
 

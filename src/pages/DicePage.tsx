@@ -1,9 +1,14 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
-import { useParams, Navigate, Link } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
+import {
+  HISTORY_PAGE_SIZE,
+  itemDisplayColor,
+  MAX_WEIGHT,
+  RELATIVE_TIME_REFRESH_MS,
+} from '../lib/constants'
 import { createDiceItem, generateDiceName } from '../lib/dice'
 import { formatRelativeTime } from '../lib/time'
-import { itemHslColor, HISTORY_PAGE_SIZE, RELATIVE_TIME_REFRESH_MS, MAX_WEIGHT } from '../lib/constants'
 import type { DiceItem } from '../types'
 import './DicePage.css'
 
@@ -17,7 +22,10 @@ export function DicePage() {
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), RELATIVE_TIME_REFRESH_MS)
+    const timer = setInterval(
+      () => setNow(Date.now()),
+      RELATIVE_TIME_REFRESH_MS
+    )
     return () => clearInterval(timer)
   }, [])
 
@@ -128,23 +136,28 @@ export function DicePage() {
   }, [currentDice, editDice])
 
   if (!isLoaded) {
-    return <div className="loading">読み込み中...</div>
+    return <div className='loading'>読み込み中...</div>
   }
 
   if (!currentDice) {
-    return <Navigate to="/" replace />
+    return <Navigate to='/' replace />
   }
 
   const history = currentDice.history || []
 
   return (
-    <div className="dice-page">
-      <header className="page-header">
-        <Link to={`/dice/${currentDice.id}/${currentDice.lastMode}`} className="back-link">←</Link>
+    <div className='dice-page'>
+      <header className='page-header'>
+        <Link
+          to={`/dice/${currentDice.id}/${currentDice.lastMode}`}
+          className='back-link'
+        >
+          ←
+        </Link>
         {editingName ? (
           <input
-            className="name-edit-input"
-            type="text"
+            className='name-edit-input'
+            type='text'
             value={nameValue}
             onChange={(e) => setNameValue(e.target.value)}
             onBlur={() => {
@@ -166,8 +179,8 @@ export function DicePage() {
               setNameValue(currentDice.name)
               setEditingName(true)
             }}
-            className="editable-name"
-            title="クリックで名前を編集"
+            className='editable-name'
+            title='クリックで名前を編集'
           >
             {currentDice.name}
           </h1>
@@ -182,14 +195,14 @@ export function DicePage() {
 
       <main>
         {/* Item grid overview */}
-        <section className="items-grid-section">
+        <section className='items-grid-section'>
           <h2>項目 ({currentDice.items.length})</h2>
-          <div className="items-grid">
+          <div className='items-grid'>
             {currentDice.items.map((item, index) => (
               <span
                 key={item.id}
-                className="grid-cell"
-                style={{ background: itemHslColor(index) }}
+                className='grid-cell'
+                style={{ background: itemDisplayColor(item.color, index) }}
                 title={`${item.label || `項目${index + 1}`} (${getPercentage(item.weight).toFixed(1)}%)`}
               >
                 {(item.label || `${index + 1}`).slice(0, 3)}
@@ -200,26 +213,29 @@ export function DicePage() {
 
         {/* History */}
         {history.length > 0 && (
-          <section className="history-section">
-            <div className="history-header">
+          <section className='history-section'>
+            <div className='history-header'>
               <h2>履歴 ({history.length})</h2>
               <button
-                className="clear-history"
+                className='clear-history'
                 onClick={() => clearHistory(currentDice.id)}
               >
                 クリア
               </button>
             </div>
-            <ul className="history-list">
-              {[...history].reverse().slice(0, HISTORY_PAGE_SIZE).map((log, i) => (
-                <li key={log.id}>
-                  <span className="history-number">{history.length - i}</span>
-                  <span className="history-label">{log.label}</span>
-                  <span className="history-time">
-                    {formatRelativeTime(log.timestamp, now)}
-                  </span>
-                </li>
-              ))}
+            <ul className='history-list'>
+              {[...history]
+                .reverse()
+                .slice(0, HISTORY_PAGE_SIZE)
+                .map((log, i) => (
+                  <li key={log.id}>
+                    <span className='history-number'>{history.length - i}</span>
+                    <span className='history-label'>{log.label}</span>
+                    <span className='history-time'>
+                      {formatRelativeTime(log.timestamp, now)}
+                    </span>
+                  </li>
+                ))}
             </ul>
           </section>
         )}
@@ -227,24 +243,26 @@ export function DicePage() {
 
       {/* Inline editor */}
       {isEditing && (
-        <div className="inline-editor">
-          <div className="editor-header">
-            <div className="bulk-actions">
-              <button className="bulk-button" onClick={shuffleItems}>
+        <div className='inline-editor'>
+          <div className='editor-header'>
+            <div className='bulk-actions'>
+              <button className='bulk-button' onClick={shuffleItems}>
                 シャッフル
               </button>
-              <button className="bulk-button" onClick={resetWeights}>
+              <button className='bulk-button' onClick={resetWeights}>
                 重みリセット
               </button>
               <button
-                className="bulk-button"
+                className='bulk-button'
                 onClick={removeEmptyItems}
-                disabled={currentDice.items.filter((i) => !i.label.trim()).length === 0}
+                disabled={
+                  currentDice.items.filter((i) => !i.label.trim()).length === 0
+                }
               >
                 空を削除
               </button>
             </div>
-            <div className="edit-mode-toggle">
+            <div className='edit-mode-toggle'>
               <button
                 className={!textEditMode ? 'active' : ''}
                 onClick={() => setTextEditMode(false)}
@@ -259,32 +277,38 @@ export function DicePage() {
               </button>
             </div>
           </div>
-          <div className="editor-content">
+          <div className='editor-content'>
             <div className={`items-list ${textEditMode ? 'hidden' : ''}`}>
               {currentDice.items.map((item, index) => (
-                <div key={item.id} className="item-row">
-                  <span className="item-number">{index + 1}</span>
+                <div key={item.id} className='item-row'>
+                  <span className='item-number'>{index + 1}</span>
                   <input
-                    type="text"
+                    type='text'
                     value={item.label}
-                    onChange={(e) => updateItem(item.id, { label: e.target.value })}
+                    onChange={(e) =>
+                      updateItem(item.id, { label: e.target.value })
+                    }
                     placeholder={`項目${index + 1}`}
                   />
-                  <div className="weight-group">
+                  <div className='weight-group'>
                     <input
-                      type="number"
-                      min="1"
+                      type='number'
+                      min='1'
                       max={MAX_WEIGHT}
                       value={item.weight}
                       onChange={(e) =>
-                        updateItem(item.id, { weight: Number(e.target.value) || 1 })
+                        updateItem(item.id, {
+                          weight: Number(e.target.value) || 1,
+                        })
                       }
-                      className="weight-input"
+                      className='weight-input'
                     />
-                    <span className="probability">{getPercentage(item.weight).toFixed(1)}%</span>
+                    <span className='probability'>
+                      {getPercentage(item.weight).toFixed(1)}%
+                    </span>
                   </div>
                   <button
-                    className="remove-button"
+                    className='remove-button'
                     onClick={() => removeItem(item.id)}
                     disabled={currentDice.items.length <= 2}
                   >
@@ -292,7 +316,7 @@ export function DicePage() {
                   </button>
                 </div>
               ))}
-              <button className="add-button" onClick={addItem}>
+              <button className='add-button' onClick={addItem}>
                 + 追加
               </button>
             </div>
@@ -300,10 +324,12 @@ export function DicePage() {
               <textarea
                 value={textContent}
                 onChange={(e) => handleTextChange(e.target.value)}
-                placeholder="項目を改行区切りで入力&#10;例:&#10;項目1&#10;項目2&#10;項目3"
+                placeholder='項目を改行区切りで入力&#10;例:&#10;項目1&#10;項目2&#10;項目3'
                 rows={10}
               />
-              <p className="text-hint">改行区切りで項目を入力（最低2項目必要）</p>
+              <p className='text-hint'>
+                改行区切りで項目を入力（最低2項目必要）
+              </p>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { loadDice, saveDice } from './storage'
+import { beforeEach, describe, expect, it } from 'vitest'
 import type { Dice } from '../types'
+import { loadDice, saveDice } from './storage'
 
 describe('storage', () => {
   beforeEach(() => {
@@ -47,8 +47,11 @@ describe('storage', () => {
 
       const stored = localStorage.getItem('saikoron_dice')
       expect(stored).not.toBeNull()
+      if (stored == null) {
+        throw new Error('Stored dice was null')
+      }
 
-      const parsed = JSON.parse(stored!)
+      const parsed = JSON.parse(stored)
       expect(parsed).toHaveLength(1)
       expect(parsed[0].name).toBe('テスト')
     })

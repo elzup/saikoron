@@ -4,6 +4,7 @@ export interface DiceItem {
   id: string
   label: string
   weight: number
+  color?: string
 }
 
 export interface ResultLog {
