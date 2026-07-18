@@ -1,16 +1,23 @@
 import { useCallback, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
-import { MAX_DICE_ITEMS, RANGE_DEFAULT_MAX } from '../lib/constants'
+import {
+  MAX_DICE_ITEMS,
+  MAX_ROLL_COUNT,
+  RANGE_DEFAULT_MAX,
+} from '../lib/constants'
 import { createDiceItem, generateDiceName } from '../lib/dice'
 import { signInWithGoogleScopes } from '../lib/firebase/auth'
 import { importDiceItemsFromSpreadsheet } from '../lib/googleSheets'
 import type { DiceItem } from '../types'
 import './NewPage.css'
 
-type CreateMode = 'list' | 'range' | 'text'
+type CreateMode = 'dice' | 'list' | 'range' | 'text'
 
-const VALID_MODES: CreateMode[] = ['list', 'range', 'text']
+const VALID_MODES: CreateMode[] = ['dice', 'list', 'range', 'text']
+
+/** ダイスプリセットのデフォルト面数 */
+const DICE_DEFAULT_FACES = 6
 
 export function NewPage() {
   const navigate = useNavigate()
@@ -38,6 +45,10 @@ export function NewPage() {
   // Text mode state
   const [text, setText] = useState('')
 
+  // Dice preset state (NdX)
+  const [diceCount, setDiceCount] = useState(2)
+  const [diceFaces, setDiceFaces] = useState(DICE_DEFAULT_FACES)
+
   const updateItem = useCallback((id: string, updates: Partial<DiceItem>) => {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
@@ -53,6 +64,12 @@ export function NewPage() {
   }, [])
 
   const getItemsForCreate = (): DiceItem[] => {
+    if (mode === 'dice') {
+      const faces = Math.max(2, Math.min(MAX_DICE_ITEMS, diceFaces))
+      return Array.from({ length: faces }, (_, i) =>
+        createDiceItem(String(i + 1))
+      )
+    }
     if (mode === 'list') {
       return items.filter((item) => item.label.trim())
     }
@@ -83,6 +100,13 @@ export function NewPage() {
   const handleCreate = () => {
     const createItems = getItemsForCreate()
     if (createItems.length < 2) return
+    if (mode === 'dice') {
+      const rollCount = Math.max(1, Math.min(MAX_ROLL_COUNT, diceCount))
+      const diceName = name.trim() || `${rollCount}D${diceFaces}`
+      const newDice = addDice(diceName, createItems, rollCount)
+      navigate(`/dice/${newDice.id}/dice3d`)
+      return
+    }
     const diceName = name.trim() || generateDiceName(createItems)
     const newDice = addDice(diceName, createItems)
     navigate(`/dice/${newDice.id}/slot`)
@@ -172,6 +196,12 @@ export function NewPage() {
 
         <div className='create-mode-tabs'>
           <button
+            className={mode === 'dice' ? 'active' : ''}
+            onClick={() => setMode('dice')}
+          >
+            ダイス
+          </button>
+          <button
             className={mode === 'list' ? 'active' : ''}
             onClick={() => setMode('list')}
           >
@@ -190,6 +220,57 @@ export function NewPage() {
             テキスト
           </button>
         </div>
+
+        {mode === 'dice' && (
+          <div className='items-editor'>
+            <p className='hint'>
+              サイコロ表記（NdX）で作成。2D6 なら 6 面ダイスを 2 個振ります
+            </p>
+            <div className='dice-preset-form'>
+              <div className='dice-preset-row'>
+                <label htmlFor='dice-count'>個数 (N)</label>
+                <input
+                  id='dice-count'
+                  type='number'
+                  min='1'
+                  max={MAX_ROLL_COUNT}
+                  value={diceCount}
+                  onChange={(e) =>
+                    setDiceCount(
+                      Math.max(
+                        1,
+                        Math.min(MAX_ROLL_COUNT, Number(e.target.value))
+                      )
+                    )
+                  }
+                  className='range-input'
+                />
+              </div>
+              <div className='dice-preset-row'>
+                <label htmlFor='dice-faces'>面数 (X)</label>
+                <input
+                  id='dice-faces'
+                  type='number'
+                  min='2'
+                  max={MAX_DICE_ITEMS}
+                  value={diceFaces}
+                  onChange={(e) =>
+                    setDiceFaces(
+                      Math.max(
+                        2,
+                        Math.min(MAX_DICE_ITEMS, Number(e.target.value))
+                      )
+                    )
+                  }
+                  className='range-input'
+                />
+              </div>
+              <p className='dice-preset-preview'>
+                {diceCount}D{diceFaces}
+              </p>
+            </div>
+          </div>
+        )}
 
         {mode === 'list' && (
           <div className='items-editor'>
