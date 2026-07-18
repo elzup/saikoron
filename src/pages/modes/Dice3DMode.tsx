@@ -137,7 +137,7 @@ function Dice3DContent({
     timerRef.current = window.setTimeout(() => {
       setRolling(false)
       setResult({ picks: rolled.picks, sum: rolled.sum })
-      addRoll(dice.id, rolled.picks)
+      addRoll(dice.id, rolled.picks, 'dice3d')
     }, DICE3D_ANIMATION.DURATION_MS)
   }, [rolling, dice, restingDice, addRoll])
 

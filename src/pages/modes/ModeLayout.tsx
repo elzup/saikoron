@@ -5,6 +5,7 @@ import {
   GRID_MAX_ITEMS,
   HISTORY_PAGE_SIZE,
   itemDisplayColor,
+  MODE_EMOJI,
   MODES,
   RELATIVE_TIME_REFRESH_MS,
 } from '../../lib/constants'
@@ -35,6 +36,8 @@ export function ModeLayout({ children, modeId, settings }: Props) {
   const [showHistory, setShowHistory] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [historyPage, setHistoryPage] = useState(0)
+  // 履歴を現在の View で振ったものだけに絞る（デフォルト ON）
+  const [filterCurrentView, setFilterCurrentView] = useState(true)
   const [now, setNow] = useState(Date.now())
 
   // Refresh relative times every 10 seconds
@@ -52,11 +55,11 @@ export function ModeLayout({ children, modeId, settings }: Props) {
     }
   }, [dice?.id, modeId])
 
-  // Reset to first page when history changes
+  // Reset to first page when history or filter changes
   const historyLen = dice?.history?.length ?? 0
   useEffect(() => {
     setHistoryPage(0)
-  }, [historyLen])
+  }, [historyLen, filterCurrentView])
 
   // Compute drawn item IDs from history
   const drawnItemIds = useMemo(() => {
@@ -81,7 +84,9 @@ export function ModeLayout({ children, modeId, settings }: Props) {
   }
 
   const history = dice.history || []
-  const reversed = [...history].reverse()
+  const reversed = [...history]
+    .reverse()
+    .filter((log) => !filterCurrentView || log.mode === modeId)
   const totalPages = Math.max(1, Math.ceil(reversed.length / HISTORY_PAGE_SIZE))
   const pagedHistory = reversed.slice(
     historyPage * HISTORY_PAGE_SIZE,
@@ -246,30 +251,56 @@ export function ModeLayout({ children, modeId, settings }: Props) {
             className='panel-toggle'
             onClick={() => setShowHistory(!showHistory)}
           >
-            <span>履歴 ({history.length})</span>
+            <span>履歴 ({reversed.length})</span>
             <span className='panel-arrow'>{showHistory ? '▲' : '▼'}</span>
           </button>
           {showHistory && (
             <div className='panel-content'>
-              {history.length === 0 ? (
-                <p className='panel-empty'>まだ履歴がありません</p>
+              <div className='panel-history-header'>
+                <div className='panel-history-filter'>
+                  <button
+                    type='button'
+                    className={filterCurrentView ? 'active' : ''}
+                    onClick={() => setFilterCurrentView(true)}
+                  >
+                    このView
+                  </button>
+                  <button
+                    type='button'
+                    className={!filterCurrentView ? 'active' : ''}
+                    onClick={() => setFilterCurrentView(false)}
+                  >
+                    すべて ({history.length})
+                  </button>
+                </div>
+                <button
+                  className='panel-clear-button'
+                  onClick={() => clearHistory(dice.id)}
+                  disabled={history.length === 0}
+                >
+                  クリア
+                </button>
+              </div>
+              {reversed.length === 0 ? (
+                <p className='panel-empty'>
+                  {history.length === 0
+                    ? 'まだ履歴がありません'
+                    : 'この View の履歴はありません（すべてで確認できます）'}
+                </p>
               ) : (
                 <>
-                  <div className='panel-history-header'>
-                    <button
-                      className='panel-clear-button'
-                      onClick={() => clearHistory(dice.id)}
-                    >
-                      クリア
-                    </button>
-                  </div>
                   <ul className='panel-history-list'>
                     {pagedHistory.map((log, i) => (
                       <li key={log.id}>
                         <span className='panel-history-number'>
-                          {history.length -
+                          {reversed.length -
                             (historyPage * HISTORY_PAGE_SIZE + i)}
                         </span>
+                        {!filterCurrentView && log.mode && (
+                          <span className='panel-history-mode' title={log.mode}>
+                            {MODE_EMOJI[log.mode]}
+                          </span>
+                        )}
                         <span className='panel-history-label'>
                           {formatRollLog(log)}
                         </span>

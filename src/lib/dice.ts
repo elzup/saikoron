@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import type { Dice, DiceItem, ResultLog, RollPick } from '../types'
+import type { Dice, DiceItem, ModeId, ResultLog, RollPick } from '../types'
 import { DICE_NAME_MAX_LABELS } from './constants'
 
 /** ラベルが数値ならその値、そうでなければ null */
@@ -65,12 +65,13 @@ export function createDiceItem(
   }
 }
 
-export function createResultLog(picks: DiceItem[]): ResultLog {
+export function createResultLog(picks: DiceItem[], mode?: ModeId): ResultLog {
   return {
     id: nanoid(),
     picks: picks.map((item) => ({ itemId: item.id, label: item.label })),
     sum: sumOfPicks(picks.map((item) => item.label)),
     timestamp: Date.now(),
+    mode,
   }
 }
 
@@ -152,6 +153,7 @@ export function migrateResultLog(raw: any): ResultLog {
           ? raw.sum
           : sumOfPicks(picks.map((p) => p.label)),
       timestamp: raw.timestamp,
+      mode: raw.mode,
     }
   }
   // legacy: { id, itemId, label, timestamp }

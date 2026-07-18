@@ -46,7 +46,7 @@ function SignageContent({ dice }: { dice: Dice }) {
         setDisplayItems([])
         setFadeKey((k) => k + 1)
         shownIdsRef.current.add(picked.id)
-        addHistory(dice.id, picked)
+        addHistory(dice.id, picked, 'signage')
       }
       return
     }
@@ -59,7 +59,7 @@ function SignageContent({ dice }: { dice: Dice }) {
 
     for (const item of picked) {
       shownIdsRef.current.add(item.id)
-      addHistory(dice.id, item)
+      addHistory(dice.id, item, 'signage')
     }
   }, [addHistory, dice.id, displayCount, loop])
 

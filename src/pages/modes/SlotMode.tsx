@@ -9,7 +9,7 @@ export function SlotMode() {
 
   const handleResult = useCallback(
     (diceId: string, item: DiceItem) => {
-      addHistory(diceId, item)
+      addHistory(diceId, item, 'slot')
     },
     [addHistory]
   )

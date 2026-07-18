@@ -10,7 +10,7 @@ import { ModeLayout } from './ModeLayout'
 import './SampleMode.css'
 
 export function SampleMode() {
-  const { setViewSetting } = useDice()
+  const { setViewSetting, addRoll } = useDice()
   const [results, setResults] = useState<string[]>([])
   const [isSpinning, setIsSpinning] = useState(false)
 
@@ -83,6 +83,9 @@ export function SampleMode() {
           setTimeout(() => {
             const rolled = drawSample(dice.items, count, { allowDuplicates })
             setResults(rolled.picks.map((item) => item.label))
+            if (rolled.picks.length > 0) {
+              addRoll(dice.id, rolled.picks, 'sample')
+            }
             setIsSpinning(false)
           }, SAMPLE_DELAY_MS)
         }

@@ -45,9 +45,9 @@ interface DiceContextValue {
   copyDice: (id: string) => void
   getDice: (id: string) => Dice | undefined
   /** 単発の記録（picks 長さ1）。既存 Mode 用 */
-  addHistory: (id: string, item: DiceItem) => void
-  /** 1ロール分（複数 pick）の記録。3D Mode など */
-  addRoll: (id: string, picks: DiceItem[]) => void
+  addHistory: (id: string, item: DiceItem, mode?: ModeId) => void
+  /** 1ロール分（複数 pick）の記録。どの View で振ったかも残す */
+  addRoll: (id: string, picks: DiceItem[], mode?: ModeId) => void
   clearHistory: (id: string) => void
   setLastMode: (id: string, mode: ModeId) => void
 }
@@ -176,12 +176,12 @@ export function DiceProvider({ children }: { children: ReactNode }) {
   )
 
   const addRoll = useCallback(
-    (id: string, picks: DiceItem[]) => {
+    (id: string, picks: DiceItem[], mode?: ModeId) => {
       if (picks.length === 0) return
       setDice((prev) =>
         prev.map((r) => {
           if (r.id !== id) return r
-          const log = createResultLog(picks)
+          const log = createResultLog(picks, mode)
           const updated = {
             ...r,
             history: [...(r.history || []), log],
@@ -198,7 +198,7 @@ export function DiceProvider({ children }: { children: ReactNode }) {
   )
 
   const addHistory = useCallback(
-    (id: string, item: DiceItem) => addRoll(id, [item]),
+    (id: string, item: DiceItem, mode?: ModeId) => addRoll(id, [item], mode),
     [addRoll]
   )
 

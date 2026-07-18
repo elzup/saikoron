@@ -9,7 +9,7 @@ export function WheelMode() {
 
   const handleResult = useCallback(
     (diceId: string, item: DiceItem) => {
-      addHistory(diceId, item)
+      addHistory(diceId, item, 'wheel')
     },
     [addHistory]
   )

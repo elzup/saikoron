@@ -20,6 +20,8 @@ export interface ResultLog {
   /** 全 pick が数値のとき合計。そうでなければ null */
   sum: number | null
   timestamp: number
+  /** どの View（Mode）で振ったか。旧データには無い */
+  mode?: ModeId
 }
 
 export type StorageState = 'local' | 'cloud'

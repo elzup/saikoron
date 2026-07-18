@@ -134,6 +134,11 @@ describe('createResultLog', () => {
     const log = createResultLog([createDiceItem('A'), createDiceItem('B')])
     expect(log.sum).toBeNull()
   })
+
+  it('records which View it was rolled in', () => {
+    expect(createResultLog([createDiceItem('1')], 'dice3d').mode).toBe('dice3d')
+    expect(createResultLog([createDiceItem('1')]).mode).toBeUndefined()
+  })
 })
 
 describe('formatRollLog', () => {
@@ -173,12 +178,13 @@ describe('migrateResultLog', () => {
     expect(migrated.timestamp).toBe(100)
   })
 
-  it('keeps current shape untouched', () => {
+  it('keeps current shape (with mode) untouched', () => {
     const current: ResultLog = {
       id: 'l2',
       picks: [{ itemId: 'i1', label: '2' }],
       sum: 2,
       timestamp: 200,
+      mode: 'dice3d',
     }
     expect(migrateResultLog(current)).toEqual(current)
   })

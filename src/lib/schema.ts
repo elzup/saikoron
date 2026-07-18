@@ -12,17 +12,20 @@ export const diceItemSchema = z.object({
   color: z.string().optional(),
 })
 
+const modeIdSchema = z.enum(['wheel', 'slot', 'sample', 'signage', 'dice3d'])
+
 const rollPickSchema = z.object({
   itemId: z.string().min(1),
   label: z.string(),
 })
 
-/** 現行形式: 1ロール = 複数 pick + 合計 */
+/** 現行形式: 1ロール = 複数 pick + 合計 + どの View で振ったか */
 const rollResultLogSchema = z.object({
   id: z.string().min(1),
   picks: z.array(rollPickSchema).min(1),
   sum: z.number().nullable(),
   timestamp: z.number(),
+  mode: modeIdSchema.optional(),
 })
 
 /** 旧形式 { itemId, label } を現行へ変換 */
@@ -44,8 +47,6 @@ export const resultLogSchema = z.union([
   rollResultLogSchema,
   legacyResultLogSchema,
 ])
-
-const modeIdSchema = z.enum(['wheel', 'slot', 'sample', 'signage', 'dice3d'])
 
 const viewSettingsSchema = z
   .object({
