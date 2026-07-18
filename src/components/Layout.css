@@ -66,6 +66,24 @@
   padding: var(--space-2) 0;
 }
 
+.sidebar-footer {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-4);
+}
+
+.debug-nav-link {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.debug-nav-link:hover {
+  color: var(--color-text);
+  opacity: 1;
+}
+
 .nav-item {
   display: block;
   padding: var(--space-2) var(--space-4);

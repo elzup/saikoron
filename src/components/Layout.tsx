@@ -75,6 +75,16 @@ export function Layout({ children }: Props) {
             ))}
           </div>
         </nav>
+
+        <div className='sidebar-footer'>
+          <Link
+            to='/debug/model'
+            className='debug-nav-link'
+            onClick={() => setIsOpen(false)}
+          >
+            🔧 モデル (debug)
+          </Link>
+        </div>
       </aside>
 
       {isOpen && (
