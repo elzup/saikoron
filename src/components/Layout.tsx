@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useDice } from '../hooks/useDice'
-import { LoginButton } from './LoginButton'
 import './Layout.css'
 
 interface Props {
@@ -19,9 +18,9 @@ export function Layout({ children }: Props) {
         type='button'
         className='menu-button'
         onClick={() => setIsOpen(!isOpen)}
-        aria-label='繝｡繝九Η繝ｼ'
+        aria-label='メニュー'
       >
-        {isOpen ? 'ﾃ・' : '笘ｰ'}
+        {isOpen ? '✕' : '☰'}
       </button>
 
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -29,39 +28,38 @@ export function Layout({ children }: Props) {
           <Link to='/' className='logo' onClick={() => setIsOpen(false)}>
             Saikoron
           </Link>
-          <LoginButton />
         </div>
 
         <nav className='sidebar-nav'>
           <div className='nav-section'>
-            <span className='nav-section-title'>繝・・繝ｫ</span>
+            <span className='nav-section-title'>ツール</span>
             <Link
               to='/new'
               className='nav-item new-item'
               onClick={() => setIsOpen(false)}
             >
-              + 譁ｰ隕上ム繧､繧ｹ
+              + 新規ダイス
             </Link>
             <Link
               to='/new?mode=range'
               className={`nav-item tool-item ${location.search.includes('mode=range') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              軸 遽・峇縺ｧ菴懈・
+              📐 範囲で作成
             </Link>
             <Link
               to='/new?mode=text'
               className={`nav-item tool-item ${location.search.includes('mode=text') && location.pathname === '/new' ? 'active' : ''}`}
               onClick={() => setIsOpen(false)}
             >
-              識 繝・く繧ｹ繝医〒菴懈・
+              📝 テキストで作成
             </Link>
           </div>
 
           <div className='nav-section'>
-            <span className='nav-section-title'>繝繧､繧ｹ荳隕ｧ</span>
+            <span className='nav-section-title'>ダイス一覧</span>
             {isLoaded && dice.length === 0 && (
-              <p className='empty-message'>縺ｾ縺繝繧､繧ｹ縺後≠繧翫∪縺帙ｓ</p>
+              <p className='empty-message'>まだダイスがありません</p>
             )}
             {dice.map((d) => (
               <Link
@@ -78,11 +76,11 @@ export function Layout({ children }: Props) {
 
         <div className='sidebar-footer'>
           <Link
-            to='/debug/model'
-            className='debug-nav-link'
+            to='/settings'
+            className='settings-nav-link'
             onClick={() => setIsOpen(false)}
           >
-            🔧 モデル (debug)
+            ⚙ 設定
           </Link>
         </div>
       </aside>
@@ -91,7 +89,7 @@ export function Layout({ children }: Props) {
         <button
           type='button'
           className='overlay'
-          aria-label='繝｡繝九Η繝ｼ繧定閉縺倥ｋ'
+          aria-label='メニューを閉じる'
           onClick={() => setIsOpen(false)}
         />
       )}

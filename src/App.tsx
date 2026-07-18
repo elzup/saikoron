@@ -12,6 +12,7 @@ import { SlotMode } from './pages/modes/SlotMode'
 import { WheelMode } from './pages/modes/WheelMode'
 import { NewPage } from './pages/NewPage'
 import { RandomNumberPage } from './pages/RandomNumberPage'
+import { SettingsPage } from './pages/SettingsPage'
 
 export function App() {
   return (
@@ -31,6 +32,7 @@ export function App() {
             <Route path='/play/:id' element={<PlayRedirect />} />
             <Route path='/random-number' element={<RandomNumberPage />} />
             <Route path='/list-draw' element={<ListDrawPage />} />
+            <Route path='/settings' element={<SettingsPage />} />
             <Route path='/debug/model' element={<DebugModelPage />} />
           </Routes>
         </Layout>

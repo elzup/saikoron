@@ -71,17 +71,15 @@
   padding: var(--space-2) var(--space-4);
 }
 
-.debug-nav-link {
+.settings-nav-link {
   display: inline-block;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  opacity: 0.75;
 }
 
-.debug-nav-link:hover {
+.settings-nav-link:hover {
   color: var(--color-text);
-  opacity: 1;
 }
 
 .nav-item {
