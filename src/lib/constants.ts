@@ -16,6 +16,7 @@ export const MODES: ModeConfig[] = [
   { id: 'slot', name: 'スロット', emoji: '🎰' },
   { id: 'sample', name: 'おみくじ', emoji: '🎋' },
   { id: 'signage', name: 'サイネージ', emoji: '📺' },
+  { id: 'dice3d', name: '3D ダイス', emoji: '🎲' },
 ]
 
 export const MODE_EMOJI: Record<ModeId, string> = Object.fromEntries(
@@ -85,6 +86,18 @@ export const WHEEL_ANIMATION = {
 /** おみくじアニメーション遅延 (ms) */
 export const SAMPLE_DELAY_MS = 500
 
+/** 3D ダイスアニメーション */
+export const DICE3D_ANIMATION = {
+  /** 転がり時間 (ms) */
+  DURATION_MS: 1200,
+  /** 最小回転数 */
+  MIN_SPINS: 2,
+  /** ランダム追加回転数 */
+  RANDOM_SPINS: 2,
+  /** CSS easing */
+  EASING: 'cubic-bezier(0.2, 0.7, 0.2, 1)',
+} as const
+
 // ========================================
 // 表示制限
 // ========================================
@@ -104,6 +117,9 @@ export const DICE_NAME_MAX_LABELS = 3
 
 /** ダイスのアイテム数上限 */
 export const MAX_DICE_ITEMS = 1000
+
+/** 1ロールで振れるダイス個数の上限 (rollCount) */
+export const MAX_ROLL_COUNT = 10
 
 /** 履歴エントリ数上限 */
 export const MAX_HISTORY_ENTRIES = 10000

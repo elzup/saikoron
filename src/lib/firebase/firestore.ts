@@ -10,6 +10,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import type { Dice } from '../../types'
+import { migrateDice } from '../dice'
 import { validateDice } from '../schema'
 import { db } from './config'
 
@@ -52,14 +53,10 @@ export function subscribeToDice(
 ): Unsubscribe {
   const q = query(diceCollection(uid))
   return onSnapshot(q, (snapshot) => {
-    const diceList = snapshot.docs.map((doc) => {
-      const data = doc.data()
-      return {
-        ...data,
-        lastMode: data.lastMode ?? 'slot',
-        storageState: 'cloud' as const,
-      } as Dice
-    })
+    const diceList = snapshot.docs.map((doc) => ({
+      ...migrateDice(doc.data()),
+      storageState: 'cloud' as const,
+    }))
     onUpdate(diceList)
   })
 }
@@ -67,14 +64,10 @@ export function subscribeToDice(
 export async function fetchCloudDice(uid: string): Promise<Dice[]> {
   const q = query(diceCollection(uid))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((doc) => {
-    const data = doc.data()
-    return {
-      ...data,
-      lastMode: data.lastMode ?? 'slot',
-      storageState: 'cloud' as const,
-    } as Dice
-  })
+  return snapshot.docs.map((doc) => ({
+    ...migrateDice(doc.data()),
+    storageState: 'cloud' as const,
+  }))
 }
 
 export async function saveMultipleDice(

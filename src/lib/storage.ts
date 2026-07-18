@@ -1,4 +1,5 @@
 import type { Dice } from '../types'
+import { migrateDice } from './dice'
 
 const STORAGE_KEY = 'saikoron_dice'
 
@@ -6,10 +7,7 @@ export function loadDice(): Dice[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY)
     if (!data) return []
-    return JSON.parse(data).map((d: Dice) => ({
-      ...d,
-      lastMode: d.lastMode ?? 'slot',
-    }))
+    return JSON.parse(data).map(migrateDice)
   } catch {
     return []
   }

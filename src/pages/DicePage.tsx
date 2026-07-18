@@ -7,7 +7,7 @@ import {
   MAX_WEIGHT,
   RELATIVE_TIME_REFRESH_MS,
 } from '../lib/constants'
-import { createDiceItem, generateDiceName } from '../lib/dice'
+import { createDiceItem, formatRollLog, generateDiceName } from '../lib/dice'
 import { formatRelativeTime } from '../lib/time'
 import type { DiceItem } from '../types'
 import './DicePage.css'
@@ -230,7 +230,7 @@ export function DicePage() {
                 .map((log, i) => (
                   <li key={log.id}>
                     <span className='history-number'>{history.length - i}</span>
-                    <span className='history-label'>{log.label}</span>
+                    <span className='history-label'>{formatRollLog(log)}</span>
                     <span className='history-time'>
                       {formatRelativeTime(log.timestamp, now)}
                     </span>

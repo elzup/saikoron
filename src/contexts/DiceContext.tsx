@@ -20,21 +20,34 @@ import {
 } from '../lib/firebase/firestore'
 import { syncLocalToCloud } from '../lib/firebase/sync'
 import { clearDice, loadDice, saveDice } from '../lib/storage'
-import type { Dice, DiceItem, ModeId } from '../types'
+import type { Dice, DiceItem, ModeId, ViewSettings } from '../types'
 import { useAuth } from './AuthContext'
 
 interface DiceContextValue {
   dice: Dice[]
   isLoaded: boolean
-  addDice: (name: string, items: Omit<DiceItem, 'id'>[]) => Dice
+  addDice: (
+    name: string,
+    items: Omit<DiceItem, 'id'>[],
+    rollCount?: number
+  ) => Dice
   editDice: (
     id: string,
-    updates: Partial<Pick<Dice, 'name' | 'items' | 'history'>>
+    updates: Partial<Pick<Dice, 'name' | 'items' | 'history' | 'viewSettings'>>
+  ) => void
+  /** View ごとの振り方/UI 設定を (Dice×View) 単位で保存 */
+  setViewSetting: <K extends keyof ViewSettings>(
+    id: string,
+    modeId: K,
+    value: ViewSettings[K]
   ) => void
   removeDice: (id: string) => void
   copyDice: (id: string) => void
   getDice: (id: string) => Dice | undefined
+  /** 単発の記録（picks 長さ1）。既存 Mode 用 */
   addHistory: (id: string, item: DiceItem) => void
+  /** 1ロール分（複数 pick）の記録。3D Mode など */
+  addRoll: (id: string, picks: DiceItem[]) => void
   clearHistory: (id: string) => void
   setLastMode: (id: string, mode: ModeId) => void
 }
@@ -95,10 +108,10 @@ export function DiceProvider({ children }: { children: ReactNode }) {
   }, [dice, isLoaded, user])
 
   const addDice = useCallback(
-    (name: string, items: Omit<DiceItem, 'id'>[]) => {
+    (name: string, items: Omit<DiceItem, 'id'>[], rollCount = 1) => {
       const storageState = user ? 'cloud' : 'local'
       const newDice = {
-        ...createDice(name, items),
+        ...createDice(name, items, rollCount),
         storageState,
       } as Dice
 
@@ -162,15 +175,45 @@ export function DiceProvider({ children }: { children: ReactNode }) {
     [dice]
   )
 
-  const addHistory = useCallback(
-    (id: string, item: DiceItem) => {
+  const addRoll = useCallback(
+    (id: string, picks: DiceItem[]) => {
+      if (picks.length === 0) return
       setDice((prev) =>
         prev.map((r) => {
           if (r.id !== id) return r
-          const log = createResultLog(item)
+          const log = createResultLog(picks)
           const updated = {
             ...r,
             history: [...(r.history || []), log],
+            updatedAt: Date.now(),
+          }
+          if (user) {
+            saveDiceToFirestore(user.uid, updated)
+          }
+          return updated
+        })
+      )
+    },
+    [user]
+  )
+
+  const addHistory = useCallback(
+    (id: string, item: DiceItem) => addRoll(id, [item]),
+    [addRoll]
+  )
+
+  const setViewSetting = useCallback(
+    <K extends keyof ViewSettings>(
+      id: string,
+      modeId: K,
+      value: ViewSettings[K]
+    ) => {
+      setDice((prev) =>
+        prev.map((r) => {
+          if (r.id !== id) return r
+          const updated = {
+            ...r,
+            viewSettings: { ...r.viewSettings, [modeId]: value },
             updatedAt: Date.now(),
           }
           if (user) {
@@ -227,6 +270,8 @@ export function DiceProvider({ children }: { children: ReactNode }) {
         copyDice,
         getDice,
         addHistory,
+        addRoll,
+        setViewSetting,
         clearHistory,
         setLastMode,
       }}

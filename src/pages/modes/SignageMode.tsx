@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDice } from '../../hooks/useDice'
-import {
-  SIGNAGE_DEFAULT_INTERVAL,
-  SIGNAGE_MAX_INTERVAL,
-} from '../../lib/constants'
+import { SIGNAGE_MAX_INTERVAL } from '../../lib/constants'
 import { spinDice } from '../../lib/dice'
+import { drawSample } from '../../lib/draw'
+import { getSignageSettings } from '../../lib/viewSettings'
 import type { Dice, DiceItem } from '../../types'
 import { ModeLayout } from './ModeLayout'
 import './SignageMode.css'
 
 function SignageContent({ dice }: { dice: Dice }) {
-  const { addHistory } = useDice()
+  const { addHistory, setViewSetting } = useDice()
+  const { interval, displayCount, loop } = getSignageSettings(dice)
   const [current, setCurrent] = useState<DiceItem | null>(null)
   const [isPaused, setIsPaused] = useState(false)
   const [fadeKey, setFadeKey] = useState(0)
-  const [interval, setInterval_] = useState(SIGNAGE_DEFAULT_INTERVAL)
-  const [displayCount, setDisplayCount] = useState(1)
-  const [loop, setLoop] = useState(false)
   const [displayItems, setDisplayItems] = useState<DiceItem[]>([])
   const itemsRef = useRef<DiceItem[]>([])
   const shownIdsRef = useRef<Set<string>>(new Set())
+
+  const settings = { interval, displayCount, loop }
+  const patchSettings = (patch: Partial<typeof settings>) =>
+    setViewSetting(dice.id, 'signage', { ...settings, ...patch })
 
   itemsRef.current = dice.items
 
@@ -50,14 +51,7 @@ function SignageContent({ dice }: { dice: Dice }) {
       return
     }
 
-    const picked: DiceItem[] = []
-    const pool = [...items]
-    const n = Math.min(displayCount, pool.length)
-    for (let i = 0; i < n; i++) {
-      const idx = Math.floor(Math.random() * pool.length)
-      picked.push(pool[idx])
-      pool.splice(idx, 1)
-    }
+    const picked = drawSample(items, displayCount).picks
 
     setCurrent(null)
     setDisplayItems(picked)
@@ -94,7 +88,7 @@ function SignageContent({ dice }: { dice: Dice }) {
               max={SIGNAGE_MAX_INTERVAL}
               value={interval}
               onChange={(e) =>
-                setInterval_(Math.max(1, Number(e.target.value)))
+                patchSettings({ interval: Math.max(1, Number(e.target.value)) })
               }
               className='signage-setting-input'
             />
@@ -112,12 +106,12 @@ function SignageContent({ dice }: { dice: Dice }) {
               max={dice.items.length}
               value={displayCount}
               onChange={(e) =>
-                setDisplayCount(
-                  Math.max(
+                patchSettings({
+                  displayCount: Math.max(
                     1,
                     Math.min(dice.items.length, Number(e.target.value))
-                  )
-                )
+                  ),
+                })
               }
               className='signage-setting-input'
             />
@@ -131,7 +125,7 @@ function SignageContent({ dice }: { dice: Dice }) {
             <button
               type='button'
               className={`signage-toggle-btn ${loop ? 'active' : ''}`}
-              onClick={() => setLoop(!loop)}
+              onClick={() => patchSettings({ loop: !loop })}
             >
               {loop ? 'ON' : 'OFF'}
             </button>

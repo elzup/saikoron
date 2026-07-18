@@ -1,14 +1,16 @@
 import { useState } from 'react'
+import { useDice } from '../../hooks/useDice'
 import {
   SAMPLE_DELAY_MS,
   SAMPLE_DUPLICATE_MULTIPLIER,
 } from '../../lib/constants'
+import { drawSample } from '../../lib/draw'
+import { getSampleSettings } from '../../lib/viewSettings'
 import { ModeLayout } from './ModeLayout'
 import './SampleMode.css'
 
 export function SampleMode() {
-  const [count, setCount] = useState(1)
-  const [allowDuplicates, setAllowDuplicates] = useState(false)
+  const { setViewSetting } = useDice()
   const [results, setResults] = useState<string[]>([])
   const [isSpinning, setIsSpinning] = useState(false)
 
@@ -16,40 +18,50 @@ export function SampleMode() {
     <ModeLayout
       modeId='sample'
       settings={(dice) => {
+        const { count, allowDuplicates } = getSampleSettings(dice)
         const maxCount = allowDuplicates
           ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER
           : dice.items.length
+
+        const setCount = (value: number) =>
+          setViewSetting(dice.id, 'sample', {
+            count: Math.max(1, value),
+            allowDuplicates,
+          })
+        const setAllowDuplicates = (value: boolean) =>
+          setViewSetting(dice.id, 'sample', { count, allowDuplicates: value })
+
         return (
           <div className='sample-settings'>
             <div className='sample-row'>
-              <label htmlFor='sample-count'>謚ｽ蜃ｺ謨ｰ</label>
+              <label htmlFor='sample-count'>抽出数</label>
               <input
                 id='sample-count'
                 type='number'
                 min='1'
                 max={maxCount}
                 value={count}
-                onChange={(e) => setCount(Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setCount(Number(e.target.value))}
                 className='sample-count-input'
               />
               <span className='sample-total'>/ {dice.items.length}</span>
             </div>
             <div className='sample-row'>
-              <span>驥崎､・</span>
+              <span>重複</span>
               <div className='sample-toggle'>
                 <button
                   type='button'
                   className={!allowDuplicates ? 'active' : ''}
                   onClick={() => setAllowDuplicates(false)}
                 >
-                  縺ｪ縺・
+                  なし
                 </button>
                 <button
                   type='button'
                   className={allowDuplicates ? 'active' : ''}
                   onClick={() => setAllowDuplicates(true)}
                 >
-                  縺ゅｊ
+                  あり
                 </button>
               </div>
             </div>
@@ -58,6 +70,7 @@ export function SampleMode() {
       }}
     >
       {(dice) => {
+        const { count, allowDuplicates } = getSampleSettings(dice)
         const maxCount = allowDuplicates
           ? dice.items.length * SAMPLE_DUPLICATE_MULTIPLIER
           : dice.items.length
@@ -68,22 +81,8 @@ export function SampleMode() {
           setIsSpinning(true)
 
           setTimeout(() => {
-            const picked: string[] = []
-            if (allowDuplicates) {
-              for (let i = 0; i < count; i++) {
-                const idx = Math.floor(Math.random() * dice.items.length)
-                picked.push(dice.items[idx].label)
-              }
-            } else {
-              const pool = [...dice.items]
-              const n = Math.min(count, pool.length)
-              for (let i = 0; i < n; i++) {
-                const idx = Math.floor(Math.random() * pool.length)
-                picked.push(pool[idx].label)
-                pool.splice(idx, 1)
-              }
-            }
-            setResults(picked)
+            const rolled = drawSample(dice.items, count, { allowDuplicates })
+            setResults(rolled.picks.map((item) => item.label))
             setIsSpinning(false)
           }, SAMPLE_DELAY_MS)
         }
@@ -96,7 +95,7 @@ export function SampleMode() {
               onClick={draw}
               disabled={!isValid || isSpinning}
             >
-              {isSpinning ? '謚ｽ蜃ｺ荳ｭ...' : '縺翫∩縺上§'}
+              {isSpinning ? '抽出中...' : 'おみくじ'}
             </button>
 
             {results.length > 0 && (

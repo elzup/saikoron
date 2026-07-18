@@ -8,6 +8,7 @@ import {
   MODES,
   RELATIVE_TIME_REFRESH_MS,
 } from '../../lib/constants'
+import { formatRollLog, rollLogItemIds } from '../../lib/dice'
 import { formatRelativeTime } from '../../lib/time'
 import type { Dice, ModeId } from '../../types'
 import './ModeLayout.css'
@@ -61,7 +62,7 @@ export function ModeLayout({ children, modeId, settings }: Props) {
   const drawnItemIds = useMemo(() => {
     if (!dice) return new Set<string>()
     const history = dice.history || []
-    return new Set(history.map((log) => log.itemId))
+    return new Set(history.flatMap(rollLogItemIds))
   }, [dice?.history])
 
   if (!isLoaded) {
@@ -269,7 +270,9 @@ export function ModeLayout({ children, modeId, settings }: Props) {
                           {history.length -
                             (historyPage * HISTORY_PAGE_SIZE + i)}
                         </span>
-                        <span className='panel-history-label'>{log.label}</span>
+                        <span className='panel-history-label'>
+                          {formatRollLog(log)}
+                        </span>
                         <span className='panel-history-time'>
                           {formatRelativeTime(log.timestamp, now)}
                         </span>

@@ -336,13 +336,11 @@ export function diceToRandomTool(dice: Dice): RandomTool {
 
   const history: DrawResult[] = dice.history.map((log) => ({
     type: 'list' as const,
-    items: [
-      {
-        id: log.itemId,
-        label: log.label,
-        weight: 1,
-      },
-    ],
+    items: log.picks.map((pick) => ({
+      id: pick.itemId,
+      label: pick.label,
+      weight: 1,
+    })),
     timestamp: log.timestamp,
   }))
 
@@ -376,14 +374,12 @@ export function randomToolToDice(tool: RandomTool): Dice | null {
 
   const history: ResultLog[] = tool.history
     .filter((h): h is ListDrawResult => h.type === 'list')
-    .flatMap((h) =>
-      h.items.map((item) => ({
-        id: nanoid(),
-        itemId: item.id,
-        label: item.label,
-        timestamp: h.timestamp,
-      }))
-    )
+    .map((h) => ({
+      id: nanoid(),
+      picks: h.items.map((item) => ({ itemId: item.id, label: item.label })),
+      sum: null,
+      timestamp: h.timestamp,
+    }))
 
   return {
     id: tool.id,
