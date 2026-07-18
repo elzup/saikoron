@@ -139,7 +139,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
             textAnchor='middle'
             dominantBaseline='middle'
           >
-            鬆・岼繧定ｿｽ蜉縺励※縺上□縺輔＞
+            項目を追加してください
           </text>
         )}
       </svg>
@@ -149,7 +149,7 @@ export function RouletteWheel({ items, onResult, triggerSpin }: Props) {
         onClick={spin}
         disabled={isSpinning || items.length === 0}
       >
-        {isSpinning ? '蝗櫁ｻ｢荳ｭ...' : '繧ｹ繝斐Φ'}
+        {isSpinning ? '回転中...' : 'スピン'}
       </button>
       {result && (
         <div className='result'>

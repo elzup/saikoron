@@ -95,7 +95,7 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
               {items[prevIndex]?.label}
             </div>
             <div
-              className={`slot-item current ${isSpinning ? 'spinning' : ''}`}
+              className={`slot-item current ${isSpinning ? '抽選中...' : 'スタート'}`}
               style={{
                 backgroundColor: ITEM_COLORS[displayIndex % ITEM_COLORS.length],
               }}
@@ -112,9 +112,7 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
             </div>
           </>
         ) : (
-          <div className='slot-item current empty'>
-            鬆・岼繧定ｿｽ蜉縺励※縺上□縺輔＞
-          </div>
+          <div className='slot-item current empty'>項目を追加してください</div>
         )}
         <div className='slot-highlight' />
       </div>
@@ -125,7 +123,7 @@ export function SlotRoulette({ items, onResult, triggerSpin }: Props) {
         onClick={spin}
         disabled={isSpinning || items.length === 0}
       >
-        {isSpinning ? '謚ｽ驕ｸ荳ｭ...' : '繧ｹ繧ｿ繝ｼ繝・'}
+        {isSpinning ? '抽選中...' : 'スタート'}
       </button>
 
       {result && (
