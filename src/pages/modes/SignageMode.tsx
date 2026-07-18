@@ -8,8 +8,79 @@ import type { Dice, DiceItem } from '../../types'
 import { ModeLayout } from './ModeLayout'
 import './SignageMode.css'
 
+/** サイネージは自動送りのため、各項目ではなく開始/停止のみ履歴に残す */
+const EVENT_START = '▶ 開始'
+const EVENT_STOP = '⏹ 停止'
+
+function SignageSettings({ dice }: { dice: Dice }) {
+  const { setViewSetting } = useDice()
+  const settings = getSignageSettings(dice)
+  const { interval, displayCount, loop } = settings
+
+  const patch = (p: Partial<typeof settings>) =>
+    setViewSetting(dice.id, 'signage', { ...settings, ...p })
+
+  return (
+    <div className='signage-settings'>
+      <div className='signage-setting-row'>
+        <label htmlFor='signage-interval'>切替間隔</label>
+        <div className='signage-setting-value'>
+          <input
+            id='signage-interval'
+            type='number'
+            min='1'
+            max={SIGNAGE_MAX_INTERVAL}
+            value={interval}
+            onChange={(e) =>
+              patch({ interval: Math.max(1, Number(e.target.value)) })
+            }
+            className='signage-setting-input'
+          />
+          <span>秒</span>
+        </div>
+      </div>
+
+      <div className='signage-setting-row'>
+        <label htmlFor='signage-display-count'>表示数</label>
+        <div className='signage-setting-value'>
+          <input
+            id='signage-display-count'
+            type='number'
+            min='1'
+            max={dice.items.length}
+            value={displayCount}
+            onChange={(e) =>
+              patch({
+                displayCount: Math.max(
+                  1,
+                  Math.min(dice.items.length, Number(e.target.value))
+                ),
+              })
+            }
+            className='signage-setting-input'
+          />
+          <span>/ {dice.items.length}</span>
+        </div>
+      </div>
+
+      <div className='signage-setting-row'>
+        <span>ループ</span>
+        <div className='signage-setting-value'>
+          <button
+            type='button'
+            className={`signage-toggle-btn ${loop ? 'active' : ''}`}
+            onClick={() => patch({ loop: !loop })}
+          >
+            {loop ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SignageContent({ dice }: { dice: Dice }) {
-  const { addHistory, setViewSetting } = useDice()
+  const { addRoll } = useDice()
   const { interval, displayCount, loop } = getSignageSettings(dice)
   const [current, setCurrent] = useState<DiceItem | null>(null)
   const [isPaused, setIsPaused] = useState(false)
@@ -17,12 +88,30 @@ function SignageContent({ dice }: { dice: Dice }) {
   const [displayItems, setDisplayItems] = useState<DiceItem[]>([])
   const itemsRef = useRef<DiceItem[]>([])
   const shownIdsRef = useRef<Set<string>>(new Set())
-
-  const settings = { interval, displayCount, loop }
-  const patchSettings = (patch: Partial<typeof settings>) =>
-    setViewSetting(dice.id, 'signage', { ...settings, ...patch })
+  const startedRef = useRef(false)
 
   itemsRef.current = dice.items
+
+  // 開始/停止のみを履歴に残す
+  const logEvent = useCallback(
+    (label: string) => {
+      addRoll(dice.id, [{ id: 'signage-event', label, weight: 0 }], 'signage')
+    },
+    [addRoll, dice.id]
+  )
+
+  useEffect(() => {
+    if (dice.items.length === 0) return
+    if (isPaused) {
+      if (startedRef.current) {
+        logEvent(EVENT_STOP)
+        startedRef.current = false
+      }
+    } else if (!startedRef.current) {
+      logEvent(EVENT_START)
+      startedRef.current = true
+    }
+  }, [isPaused, dice.items.length, logEvent])
 
   const next = useCallback(() => {
     let items = itemsRef.current
@@ -46,22 +135,18 @@ function SignageContent({ dice }: { dice: Dice }) {
         setDisplayItems([])
         setFadeKey((k) => k + 1)
         shownIdsRef.current.add(picked.id)
-        addHistory(dice.id, picked, 'signage')
       }
       return
     }
 
     const picked = drawSample(items, displayCount).picks
-
     setCurrent(null)
     setDisplayItems(picked)
     setFadeKey((k) => k + 1)
-
     for (const item of picked) {
       shownIdsRef.current.add(item.id)
-      addHistory(dice.id, item, 'signage')
     }
-  }, [addHistory, dice.id, displayCount, loop])
+  }, [displayCount, loop])
 
   useEffect(() => {
     if (dice.items.length > 0 && !current && displayItems.length === 0) {
@@ -77,62 +162,6 @@ function SignageContent({ dice }: { dice: Dice }) {
 
   return (
     <div className='signage-mode'>
-      <div className='signage-settings'>
-        <div className='signage-setting-row'>
-          <label htmlFor='signage-interval'>切替間隔</label>
-          <div className='signage-setting-value'>
-            <input
-              id='signage-interval'
-              type='number'
-              min='1'
-              max={SIGNAGE_MAX_INTERVAL}
-              value={interval}
-              onChange={(e) =>
-                patchSettings({ interval: Math.max(1, Number(e.target.value)) })
-              }
-              className='signage-setting-input'
-            />
-            <span>秒</span>
-          </div>
-        </div>
-
-        <div className='signage-setting-row'>
-          <label htmlFor='signage-display-count'>表示数</label>
-          <div className='signage-setting-value'>
-            <input
-              id='signage-display-count'
-              type='number'
-              min='1'
-              max={dice.items.length}
-              value={displayCount}
-              onChange={(e) =>
-                patchSettings({
-                  displayCount: Math.max(
-                    1,
-                    Math.min(dice.items.length, Number(e.target.value))
-                  ),
-                })
-              }
-              className='signage-setting-input'
-            />
-            <span>/ {dice.items.length}</span>
-          </div>
-        </div>
-
-        <div className='signage-setting-row'>
-          <span>ループ</span>
-          <div className='signage-setting-value'>
-            <button
-              type='button'
-              className={`signage-toggle-btn ${loop ? 'active' : ''}`}
-              onClick={() => patchSettings({ loop: !loop })}
-            >
-              {loop ? 'ON' : 'OFF'}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className='signage-container' onClick={() => setIsPaused(!isPaused)}>
         <div className='signage-display' key={fadeKey}>
           {displayItems.length > 0 ? (
@@ -167,7 +196,10 @@ function SignageContent({ dice }: { dice: Dice }) {
 
 export function SignageMode() {
   return (
-    <ModeLayout modeId='signage'>
+    <ModeLayout
+      modeId='signage'
+      settings={(dice) => <SignageSettings dice={dice} />}
+    >
       {(dice) => <SignageContent dice={dice} />}
     </ModeLayout>
   )
